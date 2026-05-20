@@ -64,6 +64,11 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             components={components}
             options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
           />
+
+          <p className="mt-8 rounded-lg border border-amber-200/80 bg-amber-50/80 px-4 py-3 text-sm text-muted-foreground">
+            <strong>Disclaimer:</strong> This guide is for information only. For legal advice,
+            consult your attorney.
+          </p>
         </div>
 
         {post.faqs && post.faqs.length > 0 && (
