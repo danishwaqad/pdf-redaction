@@ -5,7 +5,7 @@ const faqs = [
   },
   {
     q: "What is the difference between redaction and blacking out?",
-    a: "Blacking out with a drawing tool may leave text searchable underneath. RedactPDF rasterizes redacted pages so text cannot be copied, searched, or extracted.",
+    a: "Blacking out with a drawing tool may leave text searchable underneath. RedactPDF deletes text inside your redaction boxes from the PDF file (blank gaps in the download). Black boxes in the editor are preview only—other text stays searchable.",
   },
   {
     q: "Is it legal for court documents?",

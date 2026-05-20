@@ -50,8 +50,11 @@ export function RedactionToolbar() {
       const certBlob = new Blob([cert], { type: "text/plain" });
       downloadBlob(certBlob, certificateFilename(fileName));
       setLastAppliedCount(redactions.length);
-    } catch {
-      alert("Failed to apply redactions. Please try again.");
+    } catch (err) {
+      console.error("Redaction failed:", err);
+      const msg =
+        err instanceof Error ? err.message : "Failed to apply redactions. Please try again.";
+      alert(msg.length > 200 ? "Failed to apply redactions. Please try again." : msg);
     } finally {
       setIsApplying(false);
     }

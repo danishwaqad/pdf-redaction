@@ -25,7 +25,7 @@ const pillars = [
   {
     icon: FileCheck,
     title: "Permanent export",
-    desc: "Marked pages rasterize so redacted text is not selectable or searchable.",
+    desc: "Redacted text is removed from the PDF stream; remaining text stays searchable.",
   },
   {
     icon: Shield,

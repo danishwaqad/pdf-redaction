@@ -16,7 +16,7 @@ const faqs = [
   },
   {
     q: "What is the difference between redaction and blacking out?",
-    a: "Redaction permanently removes extractable text (we rasterize marked pages). Black boxes often leave searchable text underneath.",
+    a: "Redaction permanently removes extractable text from the PDF content stream. Black boxes in the editor are preview only; the downloaded file has blank gaps where text was deleted—not cosmetic overlays.",
   },
   {
     q: "Is it legal to use for court documents?",

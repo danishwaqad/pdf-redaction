@@ -46,21 +46,21 @@ export default function AboutPage() {
 
           <div className="not-prose my-10 flex flex-col items-center gap-6 rounded-2xl border bg-slate-50 p-8 sm:flex-row sm:items-start">
             <Image
-              src="/images/alex-morgan.jpg"
-              alt="Alex Morgan, Privacy Engineer at RedactPDF"
+              src="/images/danish-waqad.png"
+              alt="Danish Waqad, Software Engineer at RedactPDF"
               width={160}
               height={160}
               className="rounded-2xl object-cover shadow-md"
               priority
             />
             <div>
-              <h3 className="text-xl font-semibold text-foreground">Alex Morgan</h3>
-              <p className="text-sm font-medium text-brand">Privacy Engineer</p>
+              <h3 className="text-xl font-semibold text-foreground">Danish Waqad</h3>
+              <p className="text-sm font-medium text-brand">Software Engineer</p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-                Alex spent eight years in application security before focusing on document workflows. He leads
+                Danish spent eight years in application security before focusing on document workflows. He leads
                 RedactPDF&apos;s client-side architecture — ensuring redaction stays local, verifiable, and free.
-                Portrait generated for team representation; contact Alex via{" "}
-                <a href="mailto:support@redactpdf.io">support@redactpdf.io</a>.
+                Contact Danish via{" "}
+                <a href="mailto:danishwaqad@gmail.com">danishwaqad@gmail.com</a>.
               </p>
             </div>
           </div>
