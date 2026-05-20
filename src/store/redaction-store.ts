@@ -105,6 +105,8 @@ export const useRedactionStore = create<RedactionState>()(
         const buffer = await file.arrayBuffer();
         const doc = await loadPdfDocument(buffer);
         const spans = await extractAllTextSpans(doc);
+        const mobile =
+          typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
         set({
           file,
           fileName: file.name,
@@ -112,6 +114,7 @@ export const useRedactionStore = create<RedactionState>()(
           pdfDoc: doc,
           numPages: doc.numPages,
           currentPage: 0,
+          scale: mobile ? 1 : 1.25,
           redactions: [],
           history: [[]],
           historyIndex: 0,

@@ -13,6 +13,18 @@ interface DrawState {
   currentY: number;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return isMobile;
+}
+
 export function PdfViewer() {
   const pdfDoc = useRedactionStore((s) => s.pdfDoc);
   const currentPage = useRedactionStore((s) => s.currentPage);
@@ -22,53 +34,130 @@ export function PdfViewer() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const renderGenRef = useRef(0);
+  const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
+
   const [pageSize, setPageSize] = useState({ width: 0, height: 0, pdfHeight: 0 });
   const [drawing, setDrawing] = useState<DrawState | null>(null);
-  const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
+  const [pageWidthAt1, setPageWidthAt1] = useState(0);
+  const [fitScale, setFitScale] = useState(1);
+  const isMobile = useIsMobile();
+
+  const renderScale =
+    isMobile && pageWidthAt1 > 0 ? fitScale * scale : scale;
+
+  useEffect(() => {
+    if (!pdfDoc) return;
+    let cancelled = false;
+    pdfDoc.getPage(currentPage + 1).then((page) => {
+      if (!cancelled) {
+        setPageWidthAt1(page.getViewport({ scale: 1 }).width);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [pdfDoc, currentPage]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || pageWidthAt1 <= 0) return;
+
+    const updateFit = () => {
+      const w = el.clientWidth;
+      if (w > 0) {
+        const padding = 16;
+        setFitScale(Math.max(0.1, Math.min((w - padding) / pageWidthAt1, 3)));
+      }
+    };
+
+    updateFit();
+    const ro = new ResizeObserver(updateFit);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [pageWidthAt1, isMobile]);
 
   const pageRedactions = redactions.filter((r) => r.pageIndex === currentPage);
 
   const renderPage = useCallback(async () => {
-    if (!pdfDoc || !canvasRef.current) return;
+    if (!pdfDoc || !canvasRef.current || renderScale <= 0) return;
+
+    const gen = ++renderGenRef.current;
     renderTaskRef.current?.cancel();
 
     const page = await pdfDoc.getPage(currentPage + 1);
-    const viewport = page.getViewport({ scale });
+    if (gen !== renderGenRef.current) return;
+
+    const viewport = page.getViewport({ scale: renderScale });
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    setPageSize({ width: viewport.width, height: viewport.height, pdfHeight: viewport.height / scale });
+    const w = Math.floor(viewport.width);
+    const h = Math.floor(viewport.height);
+    canvas.width = w;
+    canvas.height = h;
+    canvas.style.width = `${w}px`;
+    canvas.style.height = `${h}px`;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+
+    setPageSize({
+      width: w,
+      height: h,
+      pdfHeight: h / renderScale,
+    });
 
     const task = page.render({ canvasContext: ctx, viewport, canvas });
     renderTaskRef.current = task;
     await task.promise.catch(() => undefined);
-  }, [pdfDoc, currentPage, scale]);
+  }, [pdfDoc, currentPage, renderScale]);
 
   useEffect(() => {
     renderPage();
-    return () => renderTaskRef.current?.cancel();
+    return () => {
+      renderTaskRef.current?.cancel();
+    };
   }, [renderPage]);
 
-  const getOverlayPoint = (e: React.MouseEvent) => {
+  const getOverlayPoint = (clientX: number, clientY: number) => {
     const el = overlayRef.current;
     if (!el) return { x: 0, y: 0 };
     const rect = el.getBoundingClientRect();
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  };
+
+  const startDraw = (clientX: number, clientY: number) => {
+    const p = getOverlayPoint(clientX, clientY);
+    setDrawing({ startX: p.x, startY: p.y, currentX: p.x, currentY: p.y });
+  };
+
+  const moveDraw = (clientX: number, clientY: number) => {
+    if (!drawing) return;
+    const p = getOverlayPoint(clientX, clientY);
+    setDrawing((d) => (d ? { ...d, currentX: p.x, currentY: p.y } : null));
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
-    const p = getOverlayPoint(e);
-    setDrawing({ startX: p.x, startY: p.y, currentX: p.x, currentY: p.y });
+    startDraw(e.clientX, e.clientY);
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!drawing) return;
-    const p = getOverlayPoint(e);
-    setDrawing((d) => (d ? { ...d, currentX: p.x, currentY: p.y } : null));
+    moveDraw(e.clientX, e.clientY);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length !== 1) return;
+    startDraw(e.touches[0].clientX, e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!drawing || e.touches.length !== 1) return;
+    e.preventDefault();
+    moveDraw(e.touches[0].clientX, e.touches[0].clientY);
   };
 
   const finishDraw = () => {
@@ -82,7 +171,14 @@ export function PdfViewer() {
     const height = Math.abs(drawing.currentY - drawing.startY);
 
     if (width > 4 && height > 4) {
-      const pdfRect = screenRectToPdf(left, top, width, height, pageSize.pdfHeight, scale);
+      const pdfRect = screenRectToPdf(
+        left,
+        top,
+        width,
+        height,
+        pageSize.pdfHeight,
+        renderScale
+      );
       addRedaction({
         pageIndex: currentPage,
         ...pdfRect,
@@ -103,39 +199,71 @@ export function PdfViewer() {
 
   if (!pdfDoc) return null;
 
+  const showPage = pageSize.width > 0 && pageSize.height > 0;
+
   return (
-    <div className="flex flex-1 flex-col items-center overflow-auto bg-slate-100 p-4">
-      <div
-        className="relative inline-block shadow-drop"
-        style={{ width: pageSize.width || "auto", height: pageSize.height || "auto" }}
-      >
-        <canvas ref={canvasRef} className="block max-w-full bg-white" />
+    <div
+      ref={containerRef}
+      className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-auto bg-slate-100 p-2 sm:p-4"
+    >
+      <div className="relative flex w-full min-h-[12rem] flex-1 justify-center">
         <div
-          ref={overlayRef}
-          className="absolute inset-0 cursor-crosshair touch-none"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={finishDraw}
-          onMouseLeave={finishDraw}
+          className="relative shrink-0 shadow-drop"
+          style={{
+            width: showPage ? pageSize.width : 1,
+            height: showPage ? pageSize.height : 1,
+            visibility: showPage ? "visible" : "hidden",
+          }}
         >
-          {pageRedactions.map((r) => (
-            <RedactionOverlay key={r.id} rect={r} pageHeight={pageSize.pdfHeight} scale={scale} />
-          ))}
-          {previewRect && previewRect.width > 0 && previewRect.height > 0 && (
-            <div
-              className="absolute border-2 border-dashed border-rose-500 bg-black/80"
-              style={{
-                left: previewRect.left,
-                top: previewRect.top,
-                width: previewRect.width,
-                height: previewRect.height,
-              }}
-            />
-          )}
+          <canvas ref={canvasRef} className="block bg-white" />
+          <div
+            ref={overlayRef}
+            className="absolute left-0 top-0 cursor-crosshair touch-none"
+            style={{
+              width: showPage ? pageSize.width : 0,
+              height: showPage ? pageSize.height : 0,
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={finishDraw}
+            onMouseLeave={finishDraw}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={finishDraw}
+            onTouchCancel={finishDraw}
+          >
+            {pageRedactions.map((r) => (
+              <RedactionOverlay
+                key={r.id}
+                rect={r}
+                pageHeight={pageSize.pdfHeight}
+                scale={renderScale}
+              />
+            ))}
+            {previewRect && previewRect.width > 0 && previewRect.height > 0 && (
+              <div
+                className="absolute border-2 border-dashed border-rose-500 bg-black/80"
+                style={{
+                  left: previewRect.left,
+                  top: previewRect.top,
+                  width: previewRect.width,
+                  height: previewRect.height,
+                }}
+              />
+            )}
+          </div>
         </div>
+        {!showPage && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-muted-foreground">
+            Loading page…
+          </div>
+        )}
       </div>
-      <p className="mt-3 text-center text-xs text-muted-foreground">
-        Click and drag to draw black redaction boxes on page {currentPage + 1}
+      <p className="mt-2 shrink-0 px-2 text-center text-xs text-muted-foreground">
+        {isMobile
+          ? "+/− to zoom · Drag to redact · Page "
+          : "Drag on the page to draw redaction boxes · Page "}
+        {currentPage + 1}
       </p>
     </div>
   );

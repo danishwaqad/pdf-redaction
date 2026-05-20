@@ -3,6 +3,7 @@
 import { Mail, Phone, CreditCard, Calendar, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRedactionStore } from "@/store/redaction-store";
+import { cn } from "@/lib/utils";
 import type { PatternKey } from "@/lib/pdf/pattern-detect";
 
 const PATTERN_BUTTONS: { key: PatternKey; label: string; icon: React.ElementType }[] = [
@@ -33,10 +34,13 @@ export function PatternDetectPanel() {
             key={key}
             variant="outline"
             size="sm"
-            className="justify-start gap-2 text-xs"
+            className={cn(
+              "h-10 justify-start gap-2 text-xs",
+              key === "ssn" && "col-span-2"
+            )}
             onClick={() => runPatternDetect([key])}
           >
-            <Icon className="h-3.5 w-3.5" />
+            <Icon className="h-3.5 w-3.5 shrink-0" />
             {label}
           </Button>
         ))}

@@ -5,7 +5,11 @@ import { useRedactionStore } from "@/store/redaction-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
-export function PageThumbnails() {
+type PageThumbnailsProps = {
+  orientation?: "vertical" | "horizontal";
+};
+
+export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps) {
   const pdfDoc = useRedactionStore((s) => s.pdfDoc);
   const numPages = useRedactionStore((s) => s.numPages);
   const currentPage = useRedactionStore((s) => s.currentPage);
@@ -44,34 +48,43 @@ export function PageThumbnails() {
   const countOnPage = (idx: number) =>
     redactions.filter((r) => r.pageIndex === idx).length;
 
+  const thumbButton = (src: string, idx: number) => (
+    <button
+      key={idx}
+      type="button"
+      onClick={() => setCurrentPage(idx)}
+      className={cn(
+        "relative shrink-0 overflow-hidden rounded-md border-2 transition-all hover:border-brand/50",
+        orientation === "horizontal" ? "w-24 sm:w-28" : "w-full",
+        currentPage === idx ? "border-brand shadow-sm" : "border-transparent"
+      )}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt={`Page ${idx + 1}`} className="block w-full" />
+      <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-center text-[10px] text-white">
+        {idx + 1}
+        {countOnPage(idx) > 0 && (
+          <span className="ml-1 rounded bg-brand px-1">{countOnPage(idx)}</span>
+        )}
+      </span>
+    </button>
+  );
+
+  if (orientation === "horizontal") {
+    return (
+      <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
+        {thumbs.map((src, idx) => thumbButton(src, idx))}
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full w-36 shrink-0 flex-col border-r bg-white md:w-44">
       <div className="border-b px-3 py-2 text-xs font-semibold text-muted-foreground">
         Pages ({numPages})
       </div>
       <ScrollArea className="flex-1">
-        <div className="space-y-2 p-2">
-          {thumbs.map((src, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setCurrentPage(idx)}
-              className={cn(
-                "relative w-full overflow-hidden rounded-md border-2 transition-all hover:border-brand/50",
-                currentPage === idx ? "border-brand shadow-sm" : "border-transparent"
-              )}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Page ${idx + 1}`} className="block w-full" />
-              <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-center text-[10px] text-white">
-                {idx + 1}
-                {countOnPage(idx) > 0 && (
-                  <span className="ml-1 rounded bg-brand px-1">{countOnPage(idx)}</span>
-                )}
-              </span>
-            </button>
-          ))}
-        </div>
+        <div className="space-y-2 p-2">{thumbs.map((src, idx) => thumbButton(src, idx))}</div>
       </ScrollArea>
     </div>
   );

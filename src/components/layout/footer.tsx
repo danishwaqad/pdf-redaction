@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const legalLinks = [
   { href: "/about", label: "About" },
@@ -18,6 +21,9 @@ const resourceLinks = [
 const LAUNCH_DATE = "April 28, 2026";
 
 export function Footer() {
+  const pathname = usePathname();
+  if (pathname === "/tool") return null;
+
   return (
     <footer className="border-t bg-slate-900 text-slate-300">
       <div className="mx-auto max-w-6xl px-4 py-12">
@@ -30,37 +36,33 @@ export function Footer() {
             <p className="mt-4 text-xs text-slate-500">Site launched {LAUNCH_DATE}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Company
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              {legalLinks.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="hover:text-white transition-colors">
-                    {l.label}
+            <p className="text-sm font-semibold text-white">Legal</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {legalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-white">
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Product
-            </p>
-            <ul className="mt-4 space-y-2 text-sm">
-              {resourceLinks.map((l) => (
-                <li key={l.href}>
-                  <Link href={l.href} className="hover:text-white transition-colors">
-                    {l.label}
+            <p className="text-sm font-semibold text-white">Resources</p>
+            <ul className="mt-3 space-y-2 text-sm">
+              {resourceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="hover:text-white">
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
         </div>
-        <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-800 pt-8 text-center text-xs md:flex-row md:text-left">
-          <p>© 2026 RedactPDF. Not affiliated with Adobe®.</p>
-          <p className="text-slate-500">Not legal advice · Verify redactions before sharing</p>
+        <div className="mt-10 flex flex-col gap-2 border-t border-slate-800 pt-8 text-xs text-slate-500 sm:flex-row sm:justify-between">
+          <p>© {new Date().getFullYear()} RedactPDF.io</p>
+          <p>Not legal advice · Verify redactions before sharing</p>
         </div>
       </div>
     </footer>

@@ -25,5 +25,9 @@ export function ToolClient() {
     );
   }
 
-  return <EditorWorkspace />;
+  return (
+    <div className="flex min-h-[calc(100dvh-6.5rem)] flex-col lg:min-h-[calc(100dvh-7rem)]">
+      <EditorWorkspace />
+    </div>
+  );
 }

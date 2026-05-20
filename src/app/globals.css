@@ -33,9 +33,10 @@
   }
   html {
     scroll-behavior: smooth;
+    min-height: 100dvh;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply flex min-h-dvh flex-col bg-background text-foreground antialiased;
   }
 }
 

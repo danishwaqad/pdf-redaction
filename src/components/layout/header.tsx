@@ -47,9 +47,15 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <Button asChild size="sm" className="shrink-0 shadow-sm">
-          <Link href="/tool">Redact PDF Free</Link>
-        </Button>
+        {!isTool ? (
+          <Button asChild size="sm" className="shrink-0 shadow-sm">
+            <Link href="/tool">Redact PDF Free</Link>
+          </Button>
+        ) : (
+          <span className="shrink-0 text-xs font-medium text-muted-foreground sm:text-sm">
+            Editor
+          </span>
+        )}
       </div>
     </header>
   );
