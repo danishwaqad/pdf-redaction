@@ -1,0 +1,87 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+import { MDXRemote } from "next-mdx-remote/rsc";
+import remarkGfm from "remark-gfm";
+import { getAllPostSlugs, getPostBySlug } from "@/lib/blog";
+import { useMDXComponents } from "@/mdx-components";
+import { BlogCta } from "@/components/blog/blog-cta";
+import { FaqSchema } from "@/components/blog/faq-schema";
+import { ContentWithAds } from "@/components/layout/content-with-ads";
+
+export function generateStaticParams() {
+  return getAllPostSlugs().map((slug) => ({ slug }));
+}
+
+export function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Metadata {
+  const post = getPostBySlug(params.slug);
+  if (!post) return {};
+  return {
+    title: post.title,
+    description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      publishedTime: post.date,
+    },
+  };
+}
+
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = getPostBySlug(params.slug);
+  if (!post) notFound();
+
+  const components = useMDXComponents({});
+
+  return (
+    <>
+      <article className="border-b bg-white">
+        <div className="mx-auto max-w-3xl px-4 py-10">
+          <FaqSchema faqs={post.faqs ?? []} />
+          <Link href="/blog" className="text-sm font-medium text-brand hover:underline">
+            ← Back to blog
+          </Link>
+          <header className="mt-6 border-b pb-8">
+            <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+              {post.title}
+            </h1>
+            <p className="mt-3 text-sm text-muted-foreground">
+              {post.date} · {post.readTime}
+            </p>
+          </header>
+        </div>
+      </article>
+
+      <ContentWithAds>
+        <div className="prose prose-slate max-w-none prose-headings:scroll-mt-24">
+          <MDXRemote
+            source={post.content}
+            components={components}
+            options={{ mdxOptions: { remarkPlugins: [remarkGfm] } }}
+          />
+        </div>
+
+        {post.faqs && post.faqs.length > 0 && (
+          <section className="mt-12 rounded-xl border bg-white p-6">
+            <h2 className="text-xl font-semibold">Frequently asked questions</h2>
+            <dl className="mt-4 space-y-4">
+              {post.faqs.map((f) => (
+                <div key={f.question}>
+                  <dt className="font-medium text-foreground">{f.question}</dt>
+                  <dd className="mt-1 text-sm text-muted-foreground">{f.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
+        <BlogCta />
+      </ContentWithAds>
+    </>
+  );
+}

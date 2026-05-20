@@ -1,0 +1,149 @@
+---
+title: "How to Redact a PDF for Court: Complete 2026 Guide"
+description: "Step-by-step court PDF redaction guide — permanent redaction, privilege logs, verification tests, and free browser tools that never upload your file."
+date: "2026-04-15"
+readTime: "14 min"
+faqs:
+  - question: "Can I redact a PDF for court using a free online tool?"
+    answer: "Yes, if the tool performs permanent redaction locally in your browser without uploading files. Always verify with copy-paste and search tests before filing."
+  - question: "What is the difference between redaction and blacking out in court filings?"
+    answer: "True redaction removes underlying text from the PDF. Black rectangles drawn over text may leave recoverable content, which courts reject."
+  - question: "Do I need a privilege log with redacted documents?"
+    answer: "Federal and many state rules require a privilege log when withholding material. Consult your attorney for jurisdiction-specific requirements."
+---
+
+Filing documents in civil, criminal, or administrative proceedings requires more than hiding sensitive words behind black shapes. Courts expect **true redaction** — content removed so it cannot be searched, copied, or recovered with forensic tools. This guide walks through practical workflows, verification steps, and how tools like [RedactPDF](/tool) help you redact locally without sending files to a server.
+
+## Why court redaction standards are strict
+
+Judges and clerks treat improperly redacted filings as a serious compliance failure. When text remains in the PDF content stream beneath a black box, opposing counsel may recover Social Security numbers, account details, or privileged strategy. Sanctions, orders to re-file, and reputational harm follow.
+
+Federal Rule of Civil Procedure 5.2 addresses privacy protections for filings. Many states mirror or extend those rules. Whether you represent a party or support a pro se filer, the standard is the same: **the redacted version must not disclose what you intend to withhold**.
+
+## Step 1: Identify what must be redacted
+
+Before opening software, build a redaction plan tied to your jurisdiction:
+
+- **Personal identifiers** — SSN, driver's license, financial account numbers, dates of birth combined with other identifiers
+- **Minor children's information** — names linked to minors where rules require protection
+- **Medical information** — diagnoses, treatment details when not relevant to the dispute
+- **Privileged material** — attorney-client communications, work product (often withheld entirely rather than redacted in the filed copy)
+- **Irrelevant trade secrets or business data** — only where protective orders or rules allow redaction
+
+Create a spreadsheet mapping Bates numbers or page ranges to redaction categories. This becomes the backbone of your privilege log if applicable.
+
+## Step 2: Choose software that redacts permanently
+
+Not every PDF editor performs real redaction. Drawing black rectangles in a consumer editor often leaves text intact. Court IT departments routinely demonstrate recovery in CLE courses.
+
+Look for tools that:
+
+1. Process files **locally** (browser or desktop) when confidentiality matters
+2. **Rasterize** or strip text operators in redacted regions
+3. Export a new PDF distinct from the source
+4. Provide a verification path (search, select, extract)
+
+[RedactPDF](/tool) runs entirely in your browser. Your PDF never uploads to our servers. Redacted pages are flattened so underlying text cannot be selected — passing the copy-paste test clerks care about.
+
+## Step 3: Mark redactions systematically
+
+Work page by page in a consistent order:
+
+- Use **text search** for repeated names, emails, or account numbers
+- Enable **pattern detection** for SSN, phone, email, and payment card formats
+- **Draw manual boxes** over images, signatures, or scanned text OCR missed
+- Zoom to 150–200% for edge cases in tables and footnotes
+
+Avoid "redact once and hope" on long exhibits. Exhibits attached to motions often contain unexpected headers, footers, or embedded attachments.
+
+## Step 4: Apply permanent redaction
+
+After marking, run **Apply** or **Download Redacted PDF** to burn in changes. Save under a clear filename: `Smith_Motion_Redacted_2026-05-20.pdf`. Retain the unredacted source in secure storage separate from the filing copy — never attach the wrong file to e-filing portals.
+
+## Step 5: Verification checklist (mandatory)
+
+Before upload to CM/ECF, PACER, or state portals:
+
+| Test | Pass criteria |
+|------|----------------|
+| Visual scan | No visible PII through boxes |
+| Ctrl+F search | Redacted strings return zero hits |
+| Text selection | Drag across former PII — nothing copies |
+| Extract to text | Paste full doc — withheld content absent |
+| Metadata review | Author/tool fields acceptable for filing |
+| Compare file size | Rasterized pages may increase size — expected |
+
+Have a second person run the search test if possible. Fresh eyes catch missed instances on page 47.
+
+## Privilege logs and withheld documents
+
+When you withhold rather than redact, prepare a privilege log describing the document, date, author, recipients, and basis (attorney-client, work product, etc.). Redacted filings sometimes accompany logs referencing Bates ranges. Your log must align with what appears in the public version.
+
+## E-filing portal tips
+
+- PDF/A is required in some districts — confirm local rules
+- File size limits may require compression after rasterization
+- Bookmarked exhibits: redact each exhibit PDF before merge
+- OCR layers in scans: ensure redaction covers the OCR text layer, not only the image
+
+## Common mistakes that cause rejections
+
+1. **Overlay-only black boxes** — text still searchable
+2. **Missing redaction in headers/footers** on only some pages
+3. **Hyperlinks** carrying hidden URLs with tokens or emails
+4. **Comments and markups** left enabled — review the comments panel
+5. **Filing the wrong file** — automate naming conventions to prevent swaps
+
+## Pro se filers and small firms
+
+Budget constraints push teams toward free tools. That is acceptable when the tool meets the permanent redaction standard. Adobe's redaction feature sits behind a paid subscription — a barrier [RedactPDF](/about) was built to remove. Browser-based processing also supports GDPR-aligned workflows because personal data never transits to a vendor cloud during editing.
+
+## When to involve e-discovery vendors
+
+Mass-tort productions, government investigations, and large regulatory responses need enterprise platforms with chain of custody, load files, and reviewer workflows. For single motions, affidavits, and modest exhibits, a careful manual process with strong verification is sufficient.
+
+## Working with opposing counsel and protective orders
+
+Many cases involve stipulated protective orders defining what must be redacted in public filings versus what remains in a sealed appendix. Your team should map order definitions to redaction categories before the first box is drawn. When the order requires redacting only "personal identifiers" but not corporate financials, over-redaction can draw objections as easily as under-redaction.
+
+Coordinate with opposing counsel on technical format when exchanging redacted PDFs. Some teams prefer separate sealed and public docket entries; others file a single redacted PDF with a parallel log. Document the Bates range of every redacted segment so reviewers can reconcile the public version with the sealed source if the court requests a chambers review.
+
+## Redaction in collaborative environments
+
+Litigation support staff often work from shared drives. Establish naming conventions immediately: `DRAFT_`, `REDACTED_`, and `FILED_` prefixes prevent accidental email of the wrong variant. Lock unredacted sources behind role-based access. Browser tools like [RedactPDF](/tool) help associates who cannot install Acrobat on managed laptops — processing stays local while policy blocks arbitrary cloud converters.
+
+Train reviewers to refresh the PDF after each round of comments. Track changes in Word that are later printed to PDF can reintroduce comments or metadata you thought removed. Export a fresh PDF before each redaction pass.
+
+## Technical settings for federal CM/ECF
+
+CM/ECF filers should confirm local rules on PDF version, font embedding, and whether portfolio filings are permitted. After redaction, open Document Properties and review Title, Author, and Keywords fields — automated tools sometimes stamp software names that reveal internal toolchains. Clear custom XMP if your district expects sanitized metadata.
+
+If rasterization increases file size beyond limits, consider splitting exhibits or using lossless compression on image-only pages. Never compress in ways that reintroduce readable text layers under images.
+
+## Checklist for pro se litigants without litigation support
+
+1. Read the court's self-help guide on sealed documents  
+2. Use a local browser tool — avoid emailing PDFs to "free online redact" sites  
+3. Redact party names only where the rules allow (some filings require party names)  
+4. Keep a personal log of every redaction (page, approximate location, reason)  
+5. Ask the clerk's office if a sample acceptable redacted filing is public  
+
+## Quality control sampling
+
+For documents over 100 pages, sample 10% of pages at random plus every page containing known high-risk strings (SSN, DOB, account numbers). Expand sampling if any sample page fails search tests. Large institutional filers automate sampling with scripts; solo practitioners can use spreadsheet random number generators for page picks.
+
+## Relationship to [permanent redaction education](/blog/why-blacking-out-pdf-is-not-safe)
+
+Court staff increasingly encounter filers who used annotation tools instead of redaction engines. Understanding why overlays fail helps you explain objections to clients and judges. Pair this court workflow guide with our comparison of [Adobe versus free alternatives](/blog/adobe-acrobat-redact-vs-free-alternatives) when budgeting software.
+
+## FAQ
+
+**Can clerks reject my PDF for technical reasons?** Yes — wrong format, security settings, or embedded media cause rejects. Redaction quality is a separate but equally serious issue.
+
+**Should I redact in the native Word file first?** Convert to PDF after finalizing content, then redact the PDF you will file. Redacting Word before conversion risks version mismatches.
+
+**How long should verification take?** Budget 15–30 minutes per filing for documents under 50 pages; more for exhibits.
+
+## Start your court-ready redaction
+
+Open the free [RedactPDF tool](/tool) — no signup, no upload. Mark sensitive content, download a permanently redacted PDF and certificate, and run the verification checklist before every filing. Your documents stay on your device from first click to final download.

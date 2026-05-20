@@ -1,0 +1,212 @@
+---
+title: "GDPR PDF Redaction Checklist for Privacy Teams (2026)"
+description: "A practical GDPR-aligned checklist for PDF redaction — lawful basis, data minimization, browser-only tools, verification, and documentation for DPIAs."
+date: "2026-05-01"
+readTime: "15 min"
+faqs:
+  - question: "Is browser-only PDF redaction GDPR compliant?"
+    answer: "Tools that process data locally without uploading to servers support data minimization. You remain responsible for lawful basis, retention, and accuracy."
+  - question: "Do I need a DPIA for PDF redaction software?"
+    answer: "When processing likely results in high risk to individuals, a DPIA may be required. Local-only tools reduce vendor risk but do not eliminate your obligations."
+  - question: "Can I redact personal data and still fulfill access requests?"
+    answer: "Redaction removes data from disclosed copies; your records management for original systems remains separate under Articles 15-17."
+---
+
+The General Data Protection Regulation (GDPR) does not name PDF software — but it demands **data minimization**, **integrity**, and **accountability** whenever personal data appears in documents. Privacy officers routinely approve redaction before disclosure, yet struggle when vendors silently upload files to US clouds. This checklist helps DPOs, legal ops, and IT evaluate workflows and tools like [RedactPDF](/tool) that keep processing on the user's device.
+
+## Article 5 principles mapped to redaction
+
+| Principle | Redaction implication |
+|-----------|----------------------|
+| Lawfulness, fairness, transparency | Document why redaction occurs (DSAR, litigation, publication) |
+| Purpose limitation | Redact only for stated purpose — avoid over-redaction that hides required facts |
+| Data minimization | Remove identifiers not needed by recipient |
+| Accuracy | Do not redact in ways that mislead about remaining facts |
+| Storage limitation | Delete source copies per retention schedule after redacted version approved |
+| Integrity & confidentiality | Use tools that prevent leakage during processing |
+
+## Pre-redaction governance
+
+### 1. Record lawful basis
+
+- **Article 6(1)(c)** legal obligation (regulatory filing)
+- **Article 6(1)(f)** legitimate interests (litigation hold, fraud investigation)
+- **Article 9** special category data — heightened care for health, biometric, union data
+
+Note the basis in your processing register before staff redact.
+
+### 2. Classify document sensitivity
+
+Tier 1: public-ready  
+Tier 2: internal with pseudonymized IDs  
+Tier 3: confidential PII/financial  
+Tier 4: special category + criminal data  
+
+Tier 3 and 4 should default to **local-only tools** — no upload SaaS.
+
+### 3. Vendor assessment (short form)
+
+If software uploads PDFs, collect:
+
+- Subprocessor list
+- EU Standard Contractual Clauses status
+- Retention period for uploaded files
+- Encryption in transit and at rest
+- Deletion SLA after processing
+
+[RedactPDF](/privacy-policy) — no upload, no storage — eliminates most vendor transfer questions for the editing step.
+
+## Technical checklist before redaction
+
+- [ ] Confirm latest policy template for DSAR redacted exports
+- [ ] Identify all occurrences of name, email, phone, national ID, IBAN, health markers
+- [ ] Check headers, footers, watermarks, tracked changes exported to PDF
+- [ ] Review embedded attachments and linked files
+- [ ] Note OCR text layers in scans — redact text layer, not only image
+- [ ] Disable cloud sync folders during work (OneDrive, Dropbox) if policy requires
+
+## Redaction execution steps
+
+1. Open document in approved **local browser tool** ([/tool](/tool))
+2. Run **auto-detect** for emails, phones, payment cards, SSN-style patterns
+3. **Search** for controller-specific identifiers (customer IDs, case numbers)
+4. **Manual boxes** for faces, signatures, barcodes
+5. **Download** redacted PDF + save redaction certificate log
+6. Store output in approved repository with access controls
+
+## Post-redaction verification
+
+- Full-document text search for sample identifiers (automated script or manual Ctrl+F)
+- Select-and-copy test across former PII regions
+- Secondary reviewer sign-off for Tier 4 documents
+- Hash or version ID recorded in audit log
+
+## Documentation for accountability (Article 5(2))
+
+Maintain a record per file:
+
+| Field | Example |
+|-------|---------|
+| Original reference | CRM-Export-2026-0412.pdf |
+| Redacted filename | CRM-Export-2026-0412_redacted.pdf |
+| Operator | j.smith@company.eu |
+| Tool | RedactPDF v1 browser |
+| Date/time UTC | 2026-05-01T14:22Z |
+| Items redacted | 47 (per certificate) |
+| Approver | dpo@company.eu |
+
+RedactPDF's downloadable certificate supports item counts and dates.
+
+## DPIA triggers
+
+Consider a Data Protection Impact Assessment when:
+
+- Large-scale systematic monitoring
+- Special category data at scale
+- New technology with uncertain privacy effects
+
+Switching from upload-based redaction to **local browser processing** may **reduce** DPIA scope — document that change as a mitigation in Section 4 of your DPIA.
+
+## International transfers
+
+Uploading EU data subjects' PDFs to US servers without Chapter V safeguards violates transfer rules in many scenarios. Local processing avoids transfer during redaction — but sending the **redacted** file to a US recipient later may still implicate transfers. Map the full chain, not only the editing step.
+
+## Employee training bullets
+
+- Never use personal Gmail/Drive to shuttle pre-redaction files
+- Report near-misses (wrong attachment sent) within 24 hours
+- Understand difference between redaction and pseudonymization
+- Use [/security](/security) page as internal reference
+
+## Retention after redaction
+
+GDPR does not require keeping unredacted sources forever. Align with:
+
+- Litigation hold notices
+- National limitation periods
+- Sector regulators (FCA, BaFin, CNIL guidance)
+
+When retention expires, secure deletion of **both** source and failed draft exports.
+
+## Common GDPR failures in PDF workflows
+
+1. Cloud converter retains files 14 days — undisclosed to data subjects  
+2. Redaction overlay only — personal data still extractable (breach waiting to happen)  
+3. Over-broad distribution of unredacted exports on SharePoint "Everyone" links  
+4. Missing records of processing for ad-hoc desktop tools  
+
+## Tool selection scorecard
+
+Score each candidate 0–2:
+
+| Criterion | Weight |
+|-----------|--------|
+| Local processing | 3 |
+| No account required | 1 |
+| Permanent removal verified | 3 |
+| Audit log / certificate | 2 |
+| EU vendor with DPA | 2 (if cloud) |
+
+RedactPDF scores high on local processing and permanent removal without a DPA for file processing — because files are not processed on our servers.
+
+## Role-based responsibilities (RACI-style)
+
+| Role | Responsible | Accountable |
+|------|-------------|-------------|
+| Business owner | Defines what to redact | Signs off disclosure |
+| Operator | Executes redaction in approved tool | — |
+| DPO | Approves tool & DPIA | Compliance |
+| IT | Blocks non-approved upload sites | Security standards |
+| Legal | Privilege / litigation holds | Final external send |
+
+## Records of processing activities (Article 30) sample line
+
+*"Redaction of DSAR PDF exports using client-side web tool (RedactPDF). No processor receives document content. Operator workstations EU-based."* Adjust articulation with counsel.
+
+## CNIL, ICO, and supervisory authority themes
+
+European regulators emphasize **transparency** and **integrity**. A DSAR response that leaks a national ID because of overlay redaction is both a security incident and an access request failure. Document verification in your breach playbooks — "redaction verification skipped" should be a known risk, not a surprise.
+
+## HIPAA overlap (US healthcare)
+
+HIPAA Security Rule requires appropriate administrative and technical safeguards. While RedactPDF is not a Business Associate (no PHI on our servers), covered entities remain liable for workforce use of unsafe tools. Align HIPAA policies to prefer local redaction; log certificate outputs in the compliance share if required.
+
+## Subject access request timing
+
+GDPR Article 12 expects response within one month. Build redaction into day 20–25 of your DSAR calendar so verification does not force extensions. Browser tools accelerate turnaround versus shipping files to vendors.
+
+## Pseudonymization vs redaction
+
+Pseudonymization replaces identifiers with reversible tokens under separate control. Redaction for disclosure often **removes** categories entirely. Do not confuse them in RoPA descriptions — auditors notice.
+
+## Vendor churn scenario
+
+If you previously used upload-based redaction, run a **transition DPIA addendum**: describe cessation of transfers, staff retraining, and deletion confirmations from the old vendor. Keep vendor DPAs archived for limitation periods.
+
+## Cross-border team coordination
+
+Multinational firms may redact in the EU for a US disclosure. The redaction act stays local; the **transfer** happens when email sends the redacted file. Map Schrems II implications separately. Local browser redaction avoids an extra processor during editing but does not automatically legitimize the export.
+
+## Data subject rights after redaction
+
+If a data subject requests access, you may provide a redacted copy. Keep internal records showing what was removed and why (legal exemption, third-party privacy, etc.). Article 15(4) permits withholding certain information — redaction implements that withholding technically.
+
+## Audit evidence pack (zip contents)
+
+1. Redacted PDF hash (SHA-256)  
+2. Certificate text file from RedactPDF  
+3. Screenshot of successful Ctrl+F zero-hit test  
+4. Operator ID and timestamp  
+5. Approver email  
+
+## FAQ for DPOs
+
+**Is consent required to redact?** Usually not — redaction supports other lawful bases. Consent is rarely the right basis for litigation redaction.
+
+**Does anonymization apply?** True anonymization is a high bar; redaction for disclosure is often pseudonymization or minimization, not anonymization under Recital 26.
+
+**What about UK GDPR?** Post-Brexit UK GDPR parallels apply; ICO expects similar minimization practices.
+
+## Next steps
+
+Distribute this checklist to teams handling DSAR packs, insurer correspondence, and board packs. Pilot [RedactPDF](/tool) on one workflow, measure time saved versus upload tools, and update your processing register. Privacy engineering should be accessible — not locked behind a paywall.

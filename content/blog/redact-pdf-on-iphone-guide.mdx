@@ -1,0 +1,196 @@
+---
+title: "How to Redact a PDF on iPhone & iPad (Safari Guide 2026)"
+description: "Redact PDFs on iOS Safari without installing apps. Step-by-step for iPhone lawyers, field auditors, and mobile-first teams."
+date: "2026-05-15"
+readTime: "11 min"
+faqs:
+  - question: "Can I redact a PDF on iPhone without uploading it?"
+    answer: "Yes, using Safari with a browser-only tool like RedactPDF that processes files locally in memory."
+  - question: "Does RedactPDF work in Safari on iOS?"
+    answer: "Yes. Use Safari 15+ on iPhone or iPad. Draw redaction boxes with touch; download the redacted file to Files."
+  - question: "Why avoid the iOS Markup black highlighter for sensitive PDFs?"
+    answer: "Markup often creates overlays without removing underlying text, similar to unsafe blackout on desktop."
+---
+
+Mobile professionals receive PDFs everywhere — depositions in taxis, HR complaints between meetings, insurance claims in the field. The iOS **Markup** highlighter is convenient but **unsafe** for confidentiality: it frequently overlays black without deleting text. This guide shows how to redact on iPhone and iPad using **Safari** and [RedactPDF](/tool) with the same permanent approach as desktop.
+
+## What you need
+
+- iPhone or iPad with **iOS 15+** (Safari 15+)
+- PDF stored in Files, email attachment, or cloud app
+- Stable battery or power — large PDFs use more memory in browser
+- Optional: Apple Pencil for precise boxes on iPad
+
+No App Store install required.
+
+## Step 1: Open Safari
+
+Use Safari — not an in-app browser inside LinkedIn or Slack. In-app browsers sometimes clear storage aggressively or block downloads.
+
+Navigate to your RedactPDF deployment (e.g. `https://redactpdf.io/tool`).
+
+## Step 2: Load your PDF
+
+**From Files:**  
+Tap Share on the PDF → look for "Copy" or save to Files, then in RedactPDF use **tap to browse** and pick the file from Files picker.
+
+**From Mail:**  
+Download attachment → Open in Files → then upload in tool.
+
+**Drag on iPad:**  
+Drag PDF from Files split-view into the drop zone.
+
+Wait for thumbnails — large files up to 100MB may take 30–60 seconds on older phones.
+
+## Step 3: Navigate pages
+
+Use the **thumbnail sidebar** (visible on iPad; scroll horizontally on narrow iPhone widths). Tap page numbers to jump. Count redaction badges on thumbnails to track progress.
+
+## Step 4: Mark redactions with touch
+
+- **Pinch zoom** before fine redaction around account numbers  
+- **Drag** to draw black boxes with your finger or Pencil  
+- Open the tools panel (below toolbar on mobile) for **search** and **pattern detect**  
+- Use **Undo** if you mis-draw
+
+iOS Safari supports `touch-none` overlays — if drag feels sticky, refresh once.
+
+## Step 5: Text search on mobile
+
+Enter name or ID in search → **Redact All Matches**. Toggle **regex** only if you understand patterns — mistakes over-redact.
+
+Pattern buttons find emails, phones, cards (Luhn-validated), dates, and SSN-style strings in one tap.
+
+## Step 6: Download redacted PDF
+
+Tap **Download Redacted PDF**. Safari offers:
+
+- Save to Files  
+- Share to counsel via encrypted channel  
+- AirDrop to Mac for secondary verification  
+
+Also save the **redaction certificate** text file for audit trails.
+
+## Step 7: Verify on iPhone
+
+Open redacted PDF in Files → tap search magnifier → hunt for a known redacted string. Zero results is the goal.
+
+Try long-press select on a blacked area — text should not highlight.
+
+## iPad vs iPhone layout
+
+| Device | Experience |
+|--------|------------|
+| iPad landscape | Thumbnails + tools + canvas — near desktop |
+| iPhone | Stacked tools panel; rotate to landscape for width |
+| External keyboard | Undo/redo shortcuts vary — use on-screen buttons |
+
+## Memory and performance tips
+
+- Close other Safari tabs before 80MB+ files  
+- Split huge PDFs on desktop if iPhone reloads tab (thermal/memory pressure)  
+- Prefer Wi-Fi for first download of tool assets (cached afterward)
+
+## Privacy on cellular networks
+
+Even on LTE/5G, **local processing** means PDF bytes are not sent to RedactPDF servers. Only static JS assets and optional analytics requests hit the network. See [/privacy-policy](/privacy-policy).
+
+## What not to do on iOS
+
+- **Markup black marker** for external distribution  
+- Screenshotting and cropping (leaks metadata, low quality)  
+- Forwarding unredacted attachment "to fix later"  
+- Using unknown "PDF editor" apps with vague privacy policies
+
+## Accessibility
+
+VoiceOver users: focus order follows toolbar → canvas. Contact [support@redactpdf.io](mailto:support@redactpdf.io) for friction reports — we iterate on mobile UX.
+
+## Sync with desktop workflow
+
+Start on iPhone in the field, AirDrop redacted output to Mac for partner review, or vice versa. Zustand state does not sync cross-device — re-open file per device.
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| File picker empty | Grant Files permission; download attachment first |
+| Tab reload | Reduce PDF size; avoid low power mode |
+| Download missing | Check Safari downloads manager (arrow icon) |
+| Canvas blank | Update iOS; disable experimental content blockers |
+
+## FAQ
+
+**Works in Chrome iOS?** Yes (WebKit engine) but Safari is primary test target.
+
+**Enterprise MDM WebClip?** Point WebClip to `/tool` for kiosk-style access.
+
+## Shortcuts app automation (power users)
+
+Create a Shortcuts workflow: receive PDF from Share Sheet → open Safari to `/tool` with clipboard notice. iOS limits deep-linking local files; manual pick in Files remains most reliable. Automation helps field teams standardize the starting URL.
+
+## Apple Business Manager and supervised devices
+
+MDM profiles can pin RedactPDF as an allowed domain while blocking consumer PDF upload sites. Pair with on-device verification SOPs. Test after every iOS major upgrade — WebKit changes affect canvas performance.
+
+## Comparing iOS apps in the App Store
+
+Many "PDF editor" apps send files to cloud APIs. Read privacy labels: **Data Linked to You**, **Data Used to Track You**. RedactPDF in Safari avoids App Store install but requires network for initial JS load only.
+
+## Battery and thermal management
+
+Sustained canvas rendering on iPhone 12 and older can throttle CPU. Pause between long sessions. Processing 100MB files on mobile is possible but desktop remains faster for hundred-page exhibits.
+
+## Pairing with Mac afterward
+
+AirDrop redacted PDF to Mac Preview for second search pass. Preview search complements Safari verification. Maintain version labels in filename.
+
+## Offline use after first load
+
+Service worker caching (future enhancement) may improve offline; today cache JS assets by visiting `/tool` once on Wi-Fi before field work without connectivity. PDF processing itself is offline once loaded.
+
+## Corporate counsel travel tips
+
+Use airplane mode while redacting in flight — confirms no upload path is required. Re-enable connectivity only for email of the **redacted** output via firm-approved encryption.
+
+## Split View on iPad Pro
+
+Drag RedactPDF from Safari and Files side-by-side: left thumbnail navigation, right reference email for names to redact. Stage Manager on iPadOS 16+ supports multiple Safari instances — avoid confusing which tab holds the unredacted source.
+
+## Legal hold and mobile devices
+
+If a matter is under litigation hold, mobile redaction does not replace preservation of originals. Redact only copies designated for production. MDM should prevent automatic iCloud backup of work product camera rolls containing sensitive scans.
+
+## Font size and accessibility on small screens
+
+Increase Safari text size for tool chrome via iOS Display settings if needed. Redaction boxes remain pixel-aligned to PDF canvas — zoom the PDF canvas with pinch, not browser text zoom alone.
+
+## Testing matrix (recommended)
+
+| Device | iOS | Pass? |
+|--------|-----|-------|
+| iPhone 14 | 17.x | Search zero-hit |
+| iPad Air | 16.x | Thumbnail nav |
+| iPhone SE | 15.x | Memory on 80MB file |
+
+Document results in your matter file for repeatability.
+
+## Screen recording and shoulder surfing
+
+Mobile redaction in public spaces risks shoulder surfing. Use privacy filters on iPad in depositions. iOS does not notify you if someone screen-records — physical environment matters.
+
+## CarPlay and distractions
+
+Do not redact while driving. Voice memos about missing redactions are no substitute for verification on a parked device.
+
+## External keyboards on iPad
+
+Bluetooth keyboards support undo shortcuts inconsistently in Safari canvas. Use on-screen undo after drawing if Cmd+Z fails.
+
+## Widget and home screen tips
+
+Add Safari Web Clip to home screen labeled "Redact PDF" with `/tool` URL. Opens full-screen like an app without App Store review delays.
+
+## Redact on the go
+
+Bookmark [/tool](/tool) in Safari. Handle the next sensitive PDF before you board the plane — permanently, privately, without the Adobe subscription or unsafe black highlighter.

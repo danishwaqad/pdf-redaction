@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Redact PDF with 1 click",
+  "short_name": "RedactPDF",
+  "version": "1.0.0",
+  "description": "Open RedactPDF.io to permanently redact PDFs in your browser — no upload required.",
+  "homepage_url": "https://redactpdf.io",
+  "icons": {
+    "48": "/icon-48.png",
+    "128": "/icon-128.png"
+  },
+  "browser_action": {
+    "default_title": "Redact PDF",
+    "default_icon": {
+      "48": "/icon-48.png"
+    }
+  },
+  "background": {
+    "scripts": ["extension-background.js"],
+    "persistent": false
+  },
+  "permissions": ["tabs"],
+  "applications": {
+    "gecko": {
+      "id": "redactpdf@redactpdf.io"
+    }
+  }
+}
