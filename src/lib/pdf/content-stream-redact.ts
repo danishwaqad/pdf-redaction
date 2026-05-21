@@ -1,6 +1,24 @@
 import pako from "pako";
 import type { PDFPage } from "pdf-lib";
 import { PDFName } from "pdf-lib";
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { decodePDFRawStream } = require("pdf-lib/cjs/core/streams/decode") as {
+  decodePDFRawStream: (s: { dict: unknown; contents: Uint8Array }) => { decode: () => Uint8Array };
+};
+
+function decodeExoticStream(stream: {
+  contents: Uint8Array;
+  dict: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown };
+}): Uint8Array {
+  if (
+    "getUnencodedContents" in stream &&
+    typeof (stream as { getUnencodedContents?: () => Uint8Array }).getUnencodedContents === "function"
+  ) {
+    return (stream as { getUnencodedContents: () => Uint8Array }).getUnencodedContents();
+  }
+  return decodePDFRawStream({ dict: stream.dict, contents: stream.contents }).decode();
+}
 import {
   getTextFromOperands,
   parseContentStream,
@@ -74,12 +92,37 @@ function isPdfArray(obj: unknown): obj is PdfArrayLike {
   );
 }
 
-function getFilterName(dict: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown }): string | null {
+const EXOTIC_FILTERS = new Set([
+  "ASCII85Decode",
+  "ASCIIHexDecode",
+  "LZWDecode",
+  "RunLengthDecode",
+  "CCITTFaxDecode",
+  "JBIG2Decode",
+]);
+
+function filterNamesFromDict(dict: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown }): string[] {
   const filter = dict.lookup(PDFName.of("Filter"));
-  if (filter && typeof filter === "object" && "asString" in filter) {
-    return (filter as { asString: () => string }).asString().replace(/^\//, "");
+  if (!filter) return [];
+  const names: string[] = [];
+  const push = (f: unknown) => {
+    if (f && typeof f === "object" && "asString" in f) {
+      names.push((f as { asString: () => string }).asString().replace(/^\//, ""));
+    }
+  };
+  if (typeof (filter as { size?: () => number }).size === "function") {
+    const arr = filter as PdfArrayLike;
+    for (let i = 0; i < arr.size(); i++) push(arr.lookup(i));
+  } else {
+    push(filter);
   }
-  return null;
+  return names;
+}
+
+function streamNeedsExoticDecode(dict: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown }): boolean {
+  const names = filterNamesFromDict(dict);
+  if (!names.length) return false;
+  return names.some((n) => EXOTIC_FILTERS.has(n));
 }
 
 function decodeStreamBytes(stream: unknown): Uint8Array {
@@ -87,18 +130,44 @@ function decodeStreamBytes(stream: unknown): Uint8Array {
     return stream.getUnencodedContents();
   }
   if (isRawStream(stream)) {
-    let data = stream.contents;
-    const filter = getFilterName(stream.dict);
-    if (filter === "FlateDecode") {
+    if (streamNeedsExoticDecode(stream.dict)) {
+      return decodeExoticStream(stream);
+    }
+    const names = filterNamesFromDict(stream.dict);
+    if (names.length === 0 || names[names.length - 1] === "FlateDecode") {
       try {
-        data = pako.inflate(data);
+        return pako.inflate(stream.contents);
       } catch {
         throw new Error("Failed to decompress page content (FlateDecode)");
       }
     }
-    return data;
+    return decodeExoticStream(stream);
   }
   throw new Error(`Unsupported PDF content stream type: ${(stream as object)?.constructor?.name ?? typeof stream}`);
+}
+
+/** True when page content uses non-Flate encodings (e.g. Canva ASCII85) — needs flatten if stream edit is unsafe. */
+export function pageUsesExoticContentFilters(page: PDFPage): boolean {
+  const internals = asInternals(page);
+  const ctx = internals.doc.context;
+  const contents = resolve(ctx, internals.node.Contents());
+  if (!contents) return false;
+
+  const check = (obj: unknown): boolean => {
+    const stream = resolve(ctx, obj);
+    if (!stream || typeof stream !== "object") return false;
+    const dict = (stream as { dict?: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown } }).dict;
+    if (dict?.lookup && streamNeedsExoticDecode(dict)) return true;
+    return false;
+  };
+
+  if (isPdfArray(contents)) {
+    for (let i = 0; i < contents.size(); i++) {
+      if (check(contents.lookup(i))) return true;
+    }
+    return false;
+  }
+  return check(contents);
 }
 
 function getPageContentBytes(page: PdfInternals): Uint8Array {
@@ -267,8 +336,10 @@ function filterContentStream(
   const state = createTextState();
   const kept: PdfOperation[] = [];
   let removed = 0;
+  let totalTextOps = 0;
 
   for (const op of ops) {
+    if (["Tj", "TJ", "'", '"'].includes(op.operator)) totalTextOps++;
     const isTextShow = ["Tj", "TJ", "'", '"'].includes(op.operator);
     if (isTextShow && shouldRemoveTextOp(op, state, redactions, markedSpans)) {
       removed++;
@@ -279,19 +350,25 @@ function filterContentStream(
     updateStateForOp(state, op);
   }
 
-  if (removed === 0 && redactions.length > 0) {
-    console.warn(
-      "No text operators removed from content stream; black boxes and raster flatten will still apply."
-    );
+  if (ops.length > 0 && kept.length === 0) {
+    console.warn("Content stream would be empty after redaction; keeping original page content.");
+    return bytes;
   }
 
-  return serializeOperations(kept, bytes);
+  if (totalTextOps > 2 && removed >= totalTextOps * 0.85) {
+    console.warn("Too many text operators removed; keeping original page content.");
+    return bytes;
+  }
+
+  const out = serializeOperations(kept, bytes);
+  if (out.length === 0 && bytes.length > 0) {
+    console.warn("Serialized content stream empty; keeping original page content.");
+    return bytes;
+  }
+  return out;
 }
 
-/**
- * Strip text operators inside redaction boxes; keeps vectors/images intact.
- * Does not draw black rectangles in the file — preview boxes stay in the editor only.
- */
+/** Remove text operators inside redaction boxes; leaves layout and images intact. */
 export async function redactPageContents(
   page: PDFPage,
   markedSpans: TextSpan[],
@@ -300,7 +377,6 @@ export async function redactPageContents(
   const internals = asInternals(page);
   const bytes = getPageContentBytes(internals);
   if (!bytes.length) return;
-  const filtered = filterContentStream(bytes, redactions, markedSpans);
-  setPageContentBytes(internals, filtered);
+  setPageContentBytes(internals, filterContentStream(bytes, redactions, markedSpans));
   invalidatePdfLibContentCache(page);
 }

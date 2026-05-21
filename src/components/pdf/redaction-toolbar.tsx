@@ -10,7 +10,6 @@ import {
   Loader2,
   ShieldAlert,
   ScanText,
-  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRedactionStore } from "@/store/redaction-store";
@@ -80,43 +79,12 @@ export function RedactionToolbar() {
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <p className="flex-1">
             {lastApplyUsedFlatten
-              ? "Download complete. Flattened pages are image-only — text is not searchable but redaction is permanent."
-              : "Download complete. Only marked areas were redacted; other text stays selectable."}
+              ? "Done. Hybrid pages saved as images (secure, not searchable)."
+              : "Done. Marked text removed; the rest stays selectable."}
           </p>
           <button type="button" className="text-xs underline" onClick={() => setShowRedactionWarning(false)}>
             Dismiss
           </button>
-        </div>
-      )}
-
-      {isHybridPdf && (
-        <div className="space-y-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2">
-          <div className="flex items-start gap-2">
-            <Layers className="mt-0.5 h-4 w-4 shrink-0 text-violet-800" />
-            <div className="min-w-0 flex-1 space-y-1">
-              <p className="text-sm font-medium text-violet-950">
-                Hybrid PDF detected. For complete redaction we must flatten the page first.
-              </p>
-              <p className="text-xs text-violet-900/90">
-                Flattening converts the page to an image. Text will not be searchable after
-                redaction but will be 100% secure.
-              </p>
-              {hybridPageIndices.length > 0 && (
-                <p className="text-xs text-violet-800">
-                  Hybrid pages: {hybridPageIndices.map((p) => p + 1).join(", ")}
-                </p>
-              )}
-            </div>
-          </div>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-violet-950">
-            <input
-              type="checkbox"
-              checked={flattenBeforeRedact}
-              onChange={(e) => setFlattenBeforeRedact(e.target.checked)}
-              className="rounded border-violet-400"
-            />
-            Flatten Before Redact
-          </label>
         </div>
       )}
 
@@ -146,8 +114,16 @@ export function RedactionToolbar() {
 
       <div className="flex min-w-0 items-center gap-2">
         <FileText className="h-4 w-4 shrink-0 text-brand" />
-        <span className="min-w-0 flex-1 truncate text-sm font-medium">{fileName}</span>
-        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+        <span className="min-w-0 truncate text-sm font-medium">{fileName}</span>
+        {isHybridPdf && (
+          <span
+            className="shrink-0 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800"
+            title="Text + images — use Flatten for secure redaction on image backgrounds."
+          >
+            Hybrid
+          </span>
+        )}
+        <span className="ml-auto shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
           {redactions.length} mark{redactions.length !== 1 ? "s" : ""}
         </span>
       </div>
@@ -176,6 +152,21 @@ export function RedactionToolbar() {
           <Button variant="outline" size="sm" className="h-9 text-xs" onClick={autoDetectAllBoxes}>
             Auto-Detect
           </Button>
+        )}
+
+        {isHybridPdf && (
+          <label
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50/80 px-2 text-xs text-violet-900"
+            title="Flatten page to image before redacting (recommended for CVs)."
+          >
+            <input
+              type="checkbox"
+              checked={flattenBeforeRedact}
+              onChange={(e) => setFlattenBeforeRedact(e.target.checked)}
+              className="rounded border-violet-400"
+            />
+            Flatten
+          </label>
         )}
 
         <Button variant="outline" size="sm" className="h-9 gap-1.5" onClick={reset}>

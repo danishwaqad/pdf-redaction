@@ -2,7 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRedactionStore } from "@/store/redaction-store";
-import { pdfRectToScreen, screenRectToPdf } from "@/lib/pdf/coordinates";
+import {
+  pdfRectToScreenWithViewport,
+  screenRectToPdfWithViewport,
+  viewportTransformFromPdfJs,
+  type ViewportTransform,
+} from "@/lib/pdf/coordinates";
 import type { RedactionRect } from "@/lib/pdf/types";
 import { cn } from "@/lib/utils";
 
@@ -40,7 +45,12 @@ export function PdfViewer() {
   const renderGenRef = useRef(0);
   const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
 
-  const [pageSize, setPageSize] = useState({ width: 0, height: 0, pdfHeight: 0 });
+  const [pageSize, setPageSize] = useState({
+    width: 0,
+    height: 0,
+    pdfHeight: 0,
+    transform: [1, 0, 0, 1, 0, 0] as ViewportTransform,
+  });
   const [drawing, setDrawing] = useState<DrawState | null>(null);
   const [pageWidthAt1, setPageWidthAt1] = useState(0);
   const [fitScale, setFitScale] = useState(1);
@@ -110,6 +120,7 @@ export function PdfViewer() {
       width: w,
       height: h,
       pdfHeight: h / renderScale,
+      transform: viewportTransformFromPdfJs(viewport.transform),
     });
 
     const task = page.render({ canvasContext: ctx, viewport, canvas });
@@ -173,13 +184,12 @@ export function PdfViewer() {
     const height = Math.abs(drawing.currentY - drawing.startY);
 
     if (width > 4 && height > 4) {
-      const pdfRect = screenRectToPdf(
+      const pdfRect = screenRectToPdfWithViewport(
         left,
         top,
         width,
         height,
-        pageSize.pdfHeight,
-        renderScale
+        pageSize.transform
       );
       addRedaction({
         pageIndex: currentPage,
@@ -235,12 +245,7 @@ export function PdfViewer() {
             onTouchCancel={finishDraw}
           >
             {pageRedactions.map((r) => (
-              <RedactionOverlay
-                key={r.id}
-                rect={r}
-                pageHeight={pageSize.pdfHeight}
-                scale={renderScale}
-              />
+              <RedactionOverlay key={r.id} rect={r} transform={pageSize.transform} />
             ))}
             {previewRect && previewRect.width > 0 && previewRect.height > 0 && (
               <div
@@ -278,14 +283,12 @@ export function PdfViewer() {
 
 function RedactionOverlay({
   rect,
-  pageHeight,
-  scale,
+  transform,
 }: {
   rect: RedactionRect;
-  pageHeight: number;
-  scale: number;
+  transform: ViewportTransform;
 }) {
-  const screen = pdfRectToScreen(rect, pageHeight, scale);
+  const screen = pdfRectToScreenWithViewport(rect, transform);
   return (
     <div
       className={cn(

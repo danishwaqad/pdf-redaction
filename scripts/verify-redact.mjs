@@ -11,6 +11,12 @@ import { PDFDocument, StandardFonts } from "pdf-lib";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = path.join(__dirname, "..", "fixtures", "basic-text.pdf");
 
+function clonePdfBytes(u8) {
+  const c = new Uint8Array(u8.length);
+  c.set(u8);
+  return c;
+}
+
 import { pathToFileURL } from "url";
 pdfjs.GlobalWorkerOptions.workerSrc = pathToFileURL(
   path.join(__dirname, "..", "node_modules", "pdfjs-dist", "build", "pdf.worker.min.mjs")
@@ -29,8 +35,8 @@ async function extractText(bytes) {
 }
 
 // Build redaction rect for title (from pdf.js positions)
-const input = fs.readFileSync(fixture);
-const doc = await pdfjs.getDocument({ data: new Uint8Array(input) }).promise;
+const input = new Uint8Array(fs.readFileSync(fixture));
+const doc = await pdfjs.getDocument({ data: input.slice() }).promise;
 const page = await doc.getPage(1);
 const tc = await page.getTextContent();
 let titleRect = null;
@@ -60,11 +66,7 @@ if (!titleRect) {
 // Dynamic import TS redact module
 const { applyRedactionsPermanent } = await import("../src/lib/pdf/redact-apply.ts");
 
-const out = await applyRedactionsPermanent(
-  input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength),
-  [titleRect],
-  1
-);
+const out = await applyRedactionsPermanent(clonePdfBytes(input), [titleRect], 1);
 
 const outText = await extractText(out);
 const hasIntro = outText.includes("Introduction");
