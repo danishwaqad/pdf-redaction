@@ -4,18 +4,30 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { generateId } from "@/lib/utils";
-import { loadPdfDocument, validatePdfFile } from "@/lib/pdf/pdf-loader";
-import { extractAllTextSpans } from "@/lib/pdf/text-extract";
-import { detectPatterns, formatPatternSummary, type PatternKey } from "@/lib/pdf/pattern-detect";
-import { searchTextSpans } from "@/lib/pdf/text-search";
+import {
+  clonePdfBytes,
+  formatPdfLoadError,
+  loadPdfDocument,
+  validatePdfFile,
+} from "@/lib/pdf/pdf-loader";
+import {
+  detectPatterns,
+  extractAllTextSpans,
+  formatPatternSummary,
+  pageHasTextLayer,
+  pdfHasTextLayer,
+  searchTextSpans,
+  type PatternKey,
+} from "@/lib/pdf/text";
+import { runOcrOnPdf } from "@/lib/pdf/ocr";
+import { autoDetectAllRedactionBoxes, getSpansMarkedForRemoval } from "@/lib/pdf/intersect";
 import type { RedactionRect, TextSpan } from "@/lib/pdf/types";
 
 const MAX_HISTORY = 50;
 
 interface RedactionState {
-  file: File | null;
   fileName: string;
-  pdfBytes: ArrayBuffer | null;
+  pdfBytes: Uint8Array | null;
   pdfDoc: PDFDocumentProxy | null;
   numPages: number;
   currentPage: number;
@@ -30,9 +42,14 @@ interface RedactionState {
   useRegex: boolean;
   patternCounts: Record<PatternKey, number> | null;
   patternSummary: string;
-  viewMode: "landing" | "editor";
   isApplying: boolean;
-  lastAppliedCount: number;
+  hasTextLayer: boolean;
+  currentPageHasText: boolean;
+  ocrCompleted: boolean;
+  isOcrRunning: boolean;
+  ocrProgress: number;
+  drawHint: string | null;
+  showRedactionWarning: boolean;
 
   loadFile: (file: File) => Promise<void>;
   reset: () => void;
@@ -40,19 +57,21 @@ interface RedactionState {
   setScale: (scale: number) => void;
   addRedaction: (rect: Omit<RedactionRect, "id">) => void;
   addRedactions: (rects: Omit<RedactionRect, "id">[]) => void;
-  removeRedaction: (id: string) => void;
   undo: () => void;
   redo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  canRedact: () => boolean;
   setSearchQuery: (q: string) => void;
   setUseRegex: (v: boolean) => void;
   runSearch: () => RedactionRect[];
   runPatternDetect: (keys?: PatternKey[]) => void;
-  applyPatternRedactions: () => void;
-  setViewMode: (mode: "landing" | "editor") => void;
   setIsApplying: (v: boolean) => void;
-  setLastAppliedCount: (n: number) => void;
+  setDrawHint: (msg: string | null) => void;
+  setShowRedactionWarning: (v: boolean) => void;
+  runOcr: () => Promise<void>;
+  autoDetectAllBoxes: () => void;
+  clearAfterExport: () => void;
   pushHistory: () => void;
 }
 
@@ -62,7 +81,6 @@ function cloneRedactions(r: RedactionRect[]): RedactionRect[] {
 
 export const useRedactionStore = create<RedactionState>()(
   immer((set, get) => ({
-    file: null,
     fileName: "",
     pdfBytes: null,
     pdfDoc: null,
@@ -79,38 +97,50 @@ export const useRedactionStore = create<RedactionState>()(
     useRegex: false,
     patternCounts: null,
     patternSummary: "",
-    viewMode: "landing",
     isApplying: false,
-    lastAppliedCount: 0,
+    hasTextLayer: false,
+    currentPageHasText: false,
+    ocrCompleted: false,
+    isOcrRunning: false,
+    ocrProgress: 0,
+    drawHint: null,
+    showRedactionWarning: false,
 
     pushHistory: () => {
-      set((state) => {
-        const snapshot = cloneRedactions(state.redactions);
-        const trimmed = state.history.slice(0, state.historyIndex + 1);
+      set((s) => {
+        const snapshot = cloneRedactions(s.redactions);
+        const trimmed = s.history.slice(0, s.historyIndex + 1);
         trimmed.push(snapshot);
         if (trimmed.length > MAX_HISTORY) trimmed.shift();
-        state.history = trimmed;
-        state.historyIndex = trimmed.length - 1;
+        s.history = trimmed;
+        s.historyIndex = trimmed.length - 1;
       });
     },
 
+    canRedact: () => get().hasTextLayer || get().ocrCompleted,
+
     loadFile: async (file: File) => {
       const err = validatePdfFile(file);
-      if (err) {
-        set({ error: err });
-        return;
-      }
+      if (err) return set({ error: err });
       set({ isLoading: true, error: null });
       try {
-        const buffer = await file.arrayBuffer();
-        const doc = await loadPdfDocument(buffer);
-        const spans = await extractAllTextSpans(doc);
+        const pdfBytes = clonePdfBytes(await file.arrayBuffer());
+        const doc = await loadPdfDocument(pdfBytes);
+        let spans: TextSpan[] = [];
+        let hasText = false;
+        let pageText = false;
+        try {
+          spans = await extractAllTextSpans(doc);
+          hasText = await pdfHasTextLayer(doc);
+          pageText = await pageHasTextLayer(doc, 0);
+        } catch {
+          /* continue without spans */
+        }
         const mobile =
           typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
         set({
-          file,
           fileName: file.name,
-          pdfBytes: buffer,
+          pdfBytes,
           pdfDoc: doc,
           numPages: doc.numPages,
           currentPage: 0,
@@ -120,20 +150,22 @@ export const useRedactionStore = create<RedactionState>()(
           historyIndex: 0,
           textSpans: spans,
           isLoading: false,
-          viewMode: "editor",
-          patternCounts: null,
-          patternSummary: "",
+          hasTextLayer: hasText,
+          currentPageHasText: pageText,
+          ocrCompleted: false,
+          ocrProgress: 0,
+          drawHint: null,
+          showRedactionWarning: false,
         });
-      } catch {
-        set({ isLoading: false, error: "Failed to load PDF. The file may be corrupted or encrypted." });
+      } catch (e) {
+        console.error(e);
+        set({ isLoading: false, error: formatPdfLoadError(e) });
       }
     },
 
     reset: () => {
-      const { pdfDoc } = get();
-      pdfDoc?.destroy();
+      get().pdfDoc?.destroy();
       set({
-        file: null,
         fileName: "",
         pdfBytes: null,
         pdfDoc: null,
@@ -144,89 +176,155 @@ export const useRedactionStore = create<RedactionState>()(
         historyIndex: 0,
         textSpans: [],
         error: null,
-        viewMode: "landing",
         patternCounts: null,
         patternSummary: "",
+        hasTextLayer: false,
+        currentPageHasText: false,
+        ocrCompleted: false,
+        isOcrRunning: false,
+        ocrProgress: 0,
+        drawHint: null,
+        showRedactionWarning: false,
       });
     },
 
-    setCurrentPage: (page) => set({ currentPage: page }),
+    clearAfterExport: () => {
+      get().pdfDoc?.destroy();
+      set({
+        pdfBytes: null,
+        pdfDoc: null,
+        redactions: [],
+        history: [[]],
+        historyIndex: 0,
+        textSpans: [],
+        showRedactionWarning: true,
+      });
+    },
+
+    setCurrentPage: (page) => {
+      set({ currentPage: page });
+      const { pdfDoc } = get();
+      if (pdfDoc) {
+        void pageHasTextLayer(pdfDoc, page).then((currentPageHasText) =>
+          set({ currentPageHasText })
+        );
+      }
+    },
+
     setScale: (scale) => set({ scale }),
     setSearchQuery: (q) => set({ searchQuery: q }),
     setUseRegex: (v) => set({ useRegex: v }),
-    setViewMode: (mode) => set({ viewMode: mode }),
     setIsApplying: (v) => set({ isApplying: v }),
-    setLastAppliedCount: (n) => set({ lastAppliedCount: n }),
+    setDrawHint: (msg) => set({ drawHint: msg }),
+    setShowRedactionWarning: (v) => set({ showRedactionWarning: v }),
+
+    runOcr: async () => {
+      const { pdfDoc, pdfBytes } = get();
+      if (!pdfDoc || !pdfBytes) return;
+      set({ isOcrRunning: true, ocrProgress: 0, drawHint: null, error: null });
+      try {
+        const { spans, pdfBytes: out } = await runOcrOnPdf(pdfDoc, pdfBytes, (p) =>
+          set({ ocrProgress: p.overall })
+        );
+        get().pdfDoc?.destroy();
+        const owned = clonePdfBytes(out);
+        const doc = await loadPdfDocument(owned);
+        set({
+          pdfBytes: owned,
+          pdfDoc: doc,
+          textSpans: spans,
+          hasTextLayer: true,
+          currentPageHasText: true,
+          ocrCompleted: true,
+          isOcrRunning: false,
+          ocrProgress: 100,
+          drawHint: "OCR done. Draw boxes and click Apply Redactions.",
+        });
+      } catch (e) {
+        console.error(e);
+        set({
+          isOcrRunning: false,
+          error: e instanceof Error ? e.message : "OCR failed",
+          drawHint: "OCR failed. Check internet (Tesseract loads from CDN).",
+        });
+      }
+    },
+
+    autoDetectAllBoxes: () => {
+      const { redactions, textSpans } = get();
+      if (!redactions.length) return;
+      const { redactions: next, changedCount } = autoDetectAllRedactionBoxes(
+        redactions,
+        textSpans
+      );
+      if (changedCount > 0) {
+        get().pushHistory();
+        set({
+          redactions: next,
+          drawHint: `Expanded ${changedCount} box${changedCount === 1 ? "" : "es"}. Click Apply Redactions.`,
+        });
+      } else {
+        set({
+          drawHint: "No nearby text found. Draw a larger box over the full line.",
+        });
+      }
+    },
 
     addRedaction: (rect) => {
+      if (!get().canRedact()) {
+        set({ drawHint: "Scanned PDF — run OCR from the banner first." });
+        return;
+      }
       get().pushHistory();
-      set((state) => {
-        state.redactions.push({ ...rect, id: generateId() });
+      const id = generateId();
+      set((s) => {
+        s.redactions.push({ ...rect, id });
+      });
+      const added = get().redactions.find((r) => r.id === id)!;
+      const hit = getSpansMarkedForRemoval(get().textSpans, added.pageIndex, [added]).length;
+      set({
+        drawHint: hit
+          ? null
+          : "No text in this box. Draw larger, or run OCR for scanned pages.",
       });
     },
 
     addRedactions: (rects) => {
-      if (!rects.length) return;
+      if (!rects.length || !get().canRedact()) return;
       get().pushHistory();
-      set((state) => {
-        for (const r of rects) {
-          state.redactions.push({ ...r, id: generateId() });
-        }
-      });
-    },
-
-    removeRedaction: (id) => {
-      get().pushHistory();
-      set((state) => {
-        state.redactions = state.redactions.filter((r) => r.id !== id);
+      set((s) => {
+        for (const r of rects) s.redactions.push({ ...r, id: generateId() });
       });
     },
 
     undo: () => {
       const { historyIndex, history } = get();
       if (historyIndex <= 0) return;
-      const newIndex = historyIndex - 1;
-      set({
-        historyIndex: newIndex,
-        redactions: cloneRedactions(history[newIndex]),
-      });
+      const i = historyIndex - 1;
+      set({ historyIndex: i, redactions: cloneRedactions(history[i]) });
     },
 
     redo: () => {
       const { historyIndex, history } = get();
       if (historyIndex >= history.length - 1) return;
-      const newIndex = historyIndex + 1;
-      set({
-        historyIndex: newIndex,
-        redactions: cloneRedactions(history[newIndex]),
-      });
+      const i = historyIndex + 1;
+      set({ historyIndex: i, redactions: cloneRedactions(history[i]) });
     },
 
     canUndo: () => get().historyIndex > 0,
     canRedo: () => get().historyIndex < get().history.length - 1,
 
-    runSearch: () => {
-      const { textSpans, searchQuery, useRegex } = get();
-      return searchTextSpans(textSpans, searchQuery, useRegex);
-    },
+    runSearch: () => searchTextSpans(get().textSpans, get().searchQuery, get().useRegex),
 
     runPatternDetect: (keys) => {
-      const { textSpans } = get();
-      const { rects, counts } = detectPatterns(textSpans, keys);
-      set({
-        patternCounts: counts,
-        patternSummary: formatPatternSummary(counts),
-      });
+      const { rects, counts } = detectPatterns(get().textSpans, keys);
+      set({ patternCounts: counts, patternSummary: formatPatternSummary(counts) });
       if (rects.length) {
         get().pushHistory();
-        set((state) => {
-          state.redactions.push(...rects);
+        set((s) => {
+          s.redactions.push(...rects);
         });
       }
-    },
-
-    applyPatternRedactions: () => {
-      /* patterns already added on detect; placeholder for UX */
     },
   }))
 );

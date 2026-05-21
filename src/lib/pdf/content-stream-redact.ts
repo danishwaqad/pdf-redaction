@@ -207,8 +207,24 @@ function updateStateForOp(state: TextState, op: PdfOperation): void {
   }
 }
 
-const SPAN_BBOX_PAD = 4;
-const REDACTION_BBOX_PAD = 2;
+const SPAN_BBOX_PAD = 8;
+const REDACTION_BBOX_PAD = 6;
+const ORIGIN_IN_BOX_PAD = 4;
+
+function textOriginInsideRedaction(
+  state: TextState,
+  redactions: RedactionRect[],
+  pad = ORIGIN_IN_BOX_PAD
+): boolean {
+  const [x, y] = textOriginUserSpace(state.ctm, state.tlm);
+  return redactions.some(
+    (r) =>
+      x >= r.x - pad &&
+      x <= r.x + r.width + pad &&
+      y >= r.y - pad &&
+      y <= r.y + r.height + pad
+  );
+}
 
 function shouldRemoveTextOp(
   op: PdfOperation,
@@ -218,6 +234,8 @@ function shouldRemoveTextOp(
 ): boolean {
   const text = getTextFromOperands(op);
   if (!text?.trim()) return false;
+
+  if (textOriginInsideRedaction(state, redactions)) return true;
 
   const bbox = estimateTextBBox(state, text);
 
@@ -261,9 +279,9 @@ function filterContentStream(
     updateStateForOp(state, op);
   }
 
-  if (removed === 0 && (markedSpans.length > 0 || redactions.length > 0)) {
-    throw new Error(
-      "Redaction boxes did not match any text in the PDF content stream. Try drawing a slightly larger box."
+  if (removed === 0 && redactions.length > 0) {
+    console.warn(
+      "No text operators removed from content stream; black boxes and raster flatten will still apply."
     );
   }
 

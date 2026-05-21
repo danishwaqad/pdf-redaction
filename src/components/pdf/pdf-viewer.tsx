@@ -31,6 +31,8 @@ export function PdfViewer() {
   const scale = useRedactionStore((s) => s.scale);
   const redactions = useRedactionStore((s) => s.redactions);
   const addRedaction = useRedactionStore((s) => s.addRedaction);
+  const canRedactFn = useRedactionStore((s) => s.canRedact);
+  const drawHint = useRedactionStore((s) => s.drawHint);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -141,7 +143,7 @@ export function PdfViewer() {
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0) return;
+    if (e.button !== 0 || !canRedactFn()) return;
     startDraw(e.clientX, e.clientY);
   };
 
@@ -150,7 +152,7 @@ export function PdfViewer() {
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length !== 1) return;
+    if (e.touches.length !== 1 || !canRedactFn()) return;
     startDraw(e.touches[0].clientX, e.touches[0].clientY);
   };
 
@@ -242,7 +244,7 @@ export function PdfViewer() {
             ))}
             {previewRect && previewRect.width > 0 && previewRect.height > 0 && (
               <div
-                className="absolute border-2 border-dashed border-rose-500 bg-black/80"
+                className="absolute border-2 border-dashed border-rose-600 bg-rose-500/10"
                 style={{
                   left: previewRect.left,
                   top: previewRect.top,
@@ -259,10 +261,15 @@ export function PdfViewer() {
           </div>
         )}
       </div>
+      {drawHint && (
+        <p className="mt-2 shrink-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">
+          {drawHint}
+        </p>
+      )}
       <p className="mt-2 shrink-0 px-2 text-center text-xs text-muted-foreground">
         {isMobile
-          ? "+/− to zoom · Drag to redact · Page "
-          : "Drag on the page to draw redaction boxes · Page "}
+          ? "+/− to zoom · Drag to mark areas · Page "
+          : "Drag to mark redaction areas (applied on export) · Page "}
         {currentPage + 1}
       </p>
     </div>
@@ -282,7 +289,7 @@ function RedactionOverlay({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute bg-black",
+        "pointer-events-none absolute border-2 border-dashed border-rose-600 bg-rose-500/15",
         rect.source === "search" && "ring-1 ring-amber-400",
         rect.source === "pattern" && "ring-1 ring-sky-400"
       )}

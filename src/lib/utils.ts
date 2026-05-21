@@ -26,7 +26,7 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 export function redactedFilename(original: string): string {
   const base = original.replace(/\.pdf$/i, "") || "document";
-  return `${base}_redacted.pdf`;
+  return `REDACTED_${base}.pdf`;
 }
 
 export function certificateFilename(original: string): string {
