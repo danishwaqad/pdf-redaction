@@ -63,6 +63,16 @@ function expandBoxToSpans(rect: RedactionRect, spans: TextSpan[]): RedactionRect
   };
 }
 
+/** Black fills use the same boxes you drew (small padding only). */
+export function burnRectsFromMarks(pageRedactions: RedactionRect[], pad = 1): BBox[] {
+  return pageRedactions.map((r) => ({
+    x: r.x - pad,
+    y: r.y - pad,
+    width: r.width + pad * 2,
+    height: r.height + pad * 2,
+  }));
+}
+
 export function autoDetectAllRedactionBoxes(
   redactions: RedactionRect[],
   spans: TextSpan[]

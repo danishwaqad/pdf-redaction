@@ -276,25 +276,7 @@ function updateStateForOp(state: TextState, op: PdfOperation): void {
   }
 }
 
-const SPAN_BBOX_PAD = 8;
 const REDACTION_BBOX_PAD = 6;
-const ORIGIN_IN_BOX_PAD = 4;
-
-function textOriginInsideRedaction(
-  state: TextState,
-  redactions: RedactionRect[],
-  pad = ORIGIN_IN_BOX_PAD
-): boolean {
-  const [x, y] = textOriginUserSpace(state.ctm, state.tlm);
-  return redactions.some(
-    (r) =>
-      x >= r.x - pad &&
-      x <= r.x + r.width + pad &&
-      y >= r.y - pad &&
-      y <= r.y + r.height + pad
-  );
-}
-
 function shouldRemoveTextOp(
   op: PdfOperation,
   state: TextState,
@@ -304,17 +286,17 @@ function shouldRemoveTextOp(
   const text = getTextFromOperands(op);
   if (!text?.trim()) return false;
 
-  if (textOriginInsideRedaction(state, redactions)) return true;
-
   const bbox = estimateTextBBox(state, text);
 
+  if (redactions.some((r) => rectsIntersect(bbox, r, REDACTION_BBOX_PAD))) return true;
+
   for (const span of markedSpans) {
-    if (textMatchesMarkedSpan(text, span.text)) return true;
     const spanBox: BBox = { x: span.x, y: span.y, width: span.width, height: span.height };
-    if (rectsIntersect(bbox, spanBox, SPAN_BBOX_PAD)) return true;
+    if (!rectsIntersect(bbox, spanBox, 4)) continue;
+    if (textMatchesMarkedSpan(text, span.text)) return true;
   }
 
-  return redactions.some((r) => rectsIntersect(bbox, r, REDACTION_BBOX_PAD));
+  return false;
 }
 
 function filterContentStream(
@@ -355,7 +337,7 @@ function filterContentStream(
     return bytes;
   }
 
-  if (totalTextOps > 2 && removed >= totalTextOps * 0.85) {
+  if (totalTextOps > 2 && removed >= totalTextOps * 0.5 && removed > markedSpans.length + 2) {
     console.warn("Too many text operators removed; keeping original page content.");
     return bytes;
   }
@@ -368,7 +350,7 @@ function filterContentStream(
   return out;
 }
 
-/** Remove text operators inside redaction boxes; leaves layout and images intact. */
+/** Remove text operators inside redaction boxes only. */
 export async function redactPageContents(
   page: PDFPage,
   markedSpans: TextSpan[],

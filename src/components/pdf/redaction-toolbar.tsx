@@ -40,10 +40,8 @@ export function RedactionToolbar() {
   const runOcr = useRedactionStore((s) => s.runOcr);
   const autoDetectAllBoxes = useRedactionStore((s) => s.autoDetectAllBoxes);
   const isHybridPdf = useRedactionStore((s) => s.isHybridPdf);
-  const hybridPageIndices = useRedactionStore((s) => s.hybridPageIndices);
   const flattenBeforeRedact = useRedactionStore((s) => s.flattenBeforeRedact);
   const setFlattenBeforeRedact = useRedactionStore((s) => s.setFlattenBeforeRedact);
-  const lastApplyUsedFlatten = useRedactionStore((s) => s.lastApplyUsedFlatten);
 
   const showOcrBanner = isOcrRunning || (!currentPageHasText && !ocrCompleted && !isHybridPdf);
 
@@ -51,12 +49,10 @@ export function RedactionToolbar() {
     if (!pdfBytes || !redactions.length) return;
     setIsApplying(true);
     try {
-      const usedFlatten = flattenBeforeRedact && isHybridPdf;
       const out = await applyRedactionsPermanent(pdfBytes, redactions, numPages, {
-        flattenBeforeRedact: usedFlatten,
-        hybridPageIndices,
+        highQuality: flattenBeforeRedact,
       });
-      useRedactionStore.setState({ lastApplyUsedFlatten: usedFlatten });
+      useRedactionStore.setState({ lastApplyUsedFlatten: true });
       downloadBlob(new Blob([new Uint8Array(out)], { type: "application/pdf" }), redactedFilename(fileName));
       downloadBlob(
         new Blob([buildRedactionCertificate(redactions.length)], { type: "text/plain" }),
@@ -78,9 +74,7 @@ export function RedactionToolbar() {
         <div className="flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <p className="flex-1">
-            {lastApplyUsedFlatten
-              ? "Done. Hybrid pages saved as images (secure, not searchable)."
-              : "Done. Marked text removed; the rest stays selectable."}
+            Done. Marked pages are securely redacted. Pages you did not mark stay normal text.
           </p>
           <button type="button" className="text-xs underline" onClick={() => setShowRedactionWarning(false)}>
             Dismiss
@@ -154,18 +148,18 @@ export function RedactionToolbar() {
           </Button>
         )}
 
-        {isHybridPdf && (
+        {redactions.length > 0 && (
           <label
-            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50/80 px-2 text-xs text-violet-900"
-            title="Flatten page to image before redacting (recommended for CVs)."
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs text-slate-800"
+            title="Sharper export on pages you marked. Those pages become secure images; unmarked pages stay text."
           >
             <input
               type="checkbox"
               checked={flattenBeforeRedact}
               onChange={(e) => setFlattenBeforeRedact(e.target.checked)}
-              className="rounded border-violet-400"
+              className="rounded border-slate-400"
             />
-            Flatten
+            High quality (200 DPI)
           </label>
         )}
 

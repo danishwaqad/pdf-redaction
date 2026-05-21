@@ -6,13 +6,14 @@ import {
   pdfRectToScreenWithViewport,
   viewportTransformFromPdfJs,
 } from "./coordinates";
-import { invalidatePdfLibContentCache, pageUsesExoticContentFilters, redactPageContents } from "./content-stream-redact";
+import { invalidatePdfLibContentCache } from "./content-stream-redact";
+import { burnRectsFromMarks } from "./intersect";
 import { getPdfJs, clonePdfBytes } from "./pdf-loader";
-import { extractAllTextSpans, pageHasTextLayer } from "./text";
-import { getSpansMarkedForRemoval } from "./intersect";
+import { pageHasTextLayer } from "./text";
 import type { RedactionRect } from "./types";
 
-const FLATTEN_DPI = 200;
+const DPI_DEFAULT = 150;
+const DPI_HIGH = 200;
 
 type PageNode = { delete?: (n: ReturnType<typeof PDFName.of>) => void };
 type CatalogNode = { delete?: (n: ReturnType<typeof PDFName.of>) => void };
@@ -27,7 +28,8 @@ type PageInternals = {
 };
 
 export interface ApplyRedactionOptions {
-  flattenBeforeRedact?: boolean;
+  /** Higher DPI raster on redacted pages only (default 150). */
+  highQuality?: boolean;
   hybridPageIndices?: number[];
 }
 
@@ -36,7 +38,7 @@ export interface HybridAnalysis {
   hybridPageIndices: number[];
 }
 
-// --- Hybrid detection (text + images) ---
+// --- Hybrid badge (text + images on page) ---
 
 async function pageHasImagesPdfJs(page: PDFPageProxy): Promise<boolean> {
   const pdfjs = await getPdfJs();
@@ -54,14 +56,11 @@ function pageHasImagesPdfLib(page: PDFPage): boolean {
   const ctx = (page.doc as { context: { lookup: (r: unknown) => unknown } }).context;
   const resourcesRef = (page.node as { Resources?: () => unknown }).Resources?.();
   if (!resourcesRef) return false;
-
   const resources = ctx.lookup(resourcesRef) as { lookup?: (n: ReturnType<typeof PDFName.of>) => unknown } | undefined;
   const xObjectRef = resources?.lookup?.(PDFName.of("XObject"));
   if (!xObjectRef) return false;
-
   const xObjects = ctx.lookup(xObjectRef) as { entries?: () => Iterable<[unknown, unknown]> } | undefined;
   if (!xObjects?.entries) return false;
-
   for (const [, ref] of Array.from(xObjects.entries())) {
     const obj = ctx.lookup(ref) as { dict?: { lookup: (n: ReturnType<typeof PDFName.of>) => unknown } } | undefined;
     const subtype = obj?.dict?.lookup(PDFName.of("Subtype"));
@@ -80,24 +79,22 @@ export async function analyzeHybridPdf(
 ): Promise<HybridAnalysis> {
   const libDoc = await PDFDocument.load(pdfBytes.slice());
   const hybridPageIndices: number[] = [];
-
   for (let i = 0; i < pdfJsDoc.numPages; i++) {
     if (!(await pageHasTextLayer(pdfJsDoc, i))) continue;
     const jsPage = await pdfJsDoc.getPage(i + 1);
-    const hasImages =
-      pageHasImagesPdfLib(libDoc.getPage(i)) || (await pageHasImagesPdfJs(jsPage));
-    if (hasImages) hybridPageIndices.push(i);
+    if (pageHasImagesPdfLib(libDoc.getPage(i)) || (await pageHasImagesPdfJs(jsPage))) {
+      hybridPageIndices.push(i);
+    }
   }
-
   return { isHybrid: hybridPageIndices.length > 0, hybridPageIndices };
 }
 
-// --- Flatten hybrid pages to raster ---
+// --- Reliable redaction: rasterize only pages that have marks ---
 
 function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(async (blob) => {
-      if (!blob) reject(new Error("Failed to rasterize page"));
+      if (!blob) reject(new Error("Failed to export page image"));
       else resolve(new Uint8Array(await blob.arrayBuffer()));
     }, "image/png", 1);
   });
@@ -105,49 +102,54 @@ function canvasToPng(canvas: HTMLCanvasElement): Promise<Uint8Array> {
 
 function paintBlackOnCanvas(
   ctx: CanvasRenderingContext2D,
-  rects: RedactionRect[],
+  rects: ReturnType<typeof burnRectsFromMarks>,
   transform: ReturnType<typeof viewportTransformFromPdfJs>
 ): void {
   ctx.save();
   ctx.fillStyle = "#000000";
   for (const r of rects) {
     const { left, top, width, height } = pdfRectToScreenWithViewport(r, transform);
-    ctx.fillRect(left, top, width, height);
+    if (width > 0 && height > 0) ctx.fillRect(left, top, width, height);
   }
   ctx.restore();
 }
 
-async function flattenPageToImage(
-  pdfLibPage: PDFPage,
-  pdfLibDoc: PDFDocument,
-  pdfJsPage: PDFPageProxy,
-  rects: RedactionRect[]
+/**
+ * Render page → burn black on marked areas → replace that page with the image.
+ * Same technique as professional tools; only runs on pages you marked.
+ */
+async function redactPageAsRaster(
+  libPage: PDFPage,
+  libDoc: PDFDocument,
+  jsPage: PDFPageProxy,
+  marks: RedactionRect[],
+  dpi: number
 ): Promise<void> {
-  const { width, height } = pdfLibPage.getSize();
-  const scale = FLATTEN_DPI / 72;
-  const viewport = pdfJsPage.getViewport({ scale, rotation: pdfJsPage.rotate });
+  const { width, height } = libPage.getSize();
+  const scale = dpi / 72;
+  const viewport = jsPage.getViewport({ scale, rotation: jsPage.rotate });
   const canvas = document.createElement("canvas");
-  canvas.width = Math.floor(viewport.width);
-  canvas.height = Math.floor(viewport.height);
+  canvas.width = Math.max(1, Math.floor(viewport.width));
+  canvas.height = Math.max(1, Math.floor(viewport.height));
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not create canvas for flatten");
+  if (!ctx) throw new Error("Could not render page");
 
-  await pdfJsPage.render({ canvasContext: ctx, viewport, canvas }).promise;
-  pdfJsPage.cleanup();
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (rects.length) {
-    paintBlackOnCanvas(ctx, rects, viewportTransformFromPdfJs(viewport.transform));
-  }
+  await jsPage.render({ canvasContext: ctx, viewport, canvas, intent: "print" }).promise;
 
-  const image = await pdfLibDoc.embedPng(await canvasToPng(canvas));
-  const internals = pdfLibPage as unknown as PageInternals;
+  paintBlackOnCanvas(ctx, burnRectsFromMarks(marks), viewportTransformFromPdfJs(viewport.transform));
+
+  const png = await canvasToPng(canvas);
+  const image = await libDoc.embedPng(png);
+
+  const internals = libPage as unknown as PageInternals;
   const empty = internals.doc.context.flateStream(new Uint8Array([0x20, 0x0a]));
   internals.node.set(PDFName.of("Contents"), internals.doc.context.register(empty));
-  invalidatePdfLibContentCache(pdfLibPage);
-  pdfLibPage.drawImage(image, { x: 0, y: 0, width, height });
+  invalidatePdfLibContentCache(libPage);
+  libPage.drawImage(image, { x: 0, y: 0, width, height });
 }
-
-// --- Apply ---
 
 function stripMetadata(doc: PDFDocument): void {
   doc.setTitle("Redacted Document");
@@ -159,62 +161,34 @@ function stripMetadata(doc: PDFDocument): void {
   (doc as unknown as { catalog: CatalogNode }).catalog?.delete?.(PDFName.of("Metadata"));
 }
 
-function groupByPage(redactions: RedactionRect[]): Map<number, RedactionRect[]> {
-  const map = new Map<number, RedactionRect[]>();
-  for (const r of redactions) {
-    const list = map.get(r.pageIndex) ?? [];
-    list.push(r);
-    map.set(r.pageIndex, list);
-  }
-  return map;
-}
-
-function shouldFlattenPage(
-  pageIndex: number,
-  flattenOn: boolean,
-  hybridPages: Set<number>,
-  hybridDocument: boolean,
-  page: PDFPage
-): boolean {
-  if (!flattenOn) return false;
-  return hybridPages.has(pageIndex) || (hybridDocument && pageUsesExoticContentFilters(page));
-}
-
 export async function applyRedactionsPermanent(
   pdfBytes: ArrayBuffer | Uint8Array,
   redactions: RedactionRect[],
   numPages: number,
   options: ApplyRedactionOptions = {}
 ): Promise<Uint8Array> {
-  const flattenOn = options.flattenBeforeRedact ?? false;
-  const hybridPages = new Set(options.hybridPageIndices ?? []);
-  const hybridDocument = hybridPages.size > 0;
-
+  const dpi = options.highQuality ? DPI_HIGH : DPI_DEFAULT;
   const bytesForPdfJs = clonePdfBytes(pdfBytes);
   const bytesForPdfLib = clonePdfBytes(pdfBytes);
   const pdfjs = await getPdfJs();
-  const pdfDoc = await pdfjs.getDocument({ data: bytesForPdfJs }).promise;
-  const spans = await extractAllTextSpans(pdfDoc);
+  const pdfDoc = await pdfjs.getDocument({ data: bytesForPdfJs, useSystemFonts: true }).promise;
   const outDoc = await PDFDocument.load(bytesForPdfLib);
-  const byPage = groupByPage(redactions);
+
+  const byPage = new Map<number, RedactionRect[]>();
+  for (const r of redactions) {
+    const list = byPage.get(r.pageIndex) ?? [];
+    list.push(r);
+    byPage.set(r.pageIndex, list);
+  }
 
   for (let i = 0; i < numPages && i < outDoc.getPageCount(); i++) {
-    const pageRedactions = byPage.get(i);
-    if (!pageRedactions?.length) continue;
+    const marks = byPage.get(i);
+    if (!marks?.length) continue;
 
-    const page = outDoc.getPage(i);
-
-    if (shouldFlattenPage(i, flattenOn, hybridPages, hybridDocument, page)) {
-      await flattenPageToImage(page, outDoc, await pdfDoc.getPage(i + 1), pageRedactions);
-    } else {
-      await redactPageContents(
-        page,
-        getSpansMarkedForRemoval(spans, i, pageRedactions),
-        pageRedactions
-      );
-    }
-
-    (page as unknown as { node: PageNode }).node?.delete?.(PDFName.of("Annots"));
+    const libPage = outDoc.getPage(i);
+    const jsPage = await pdfDoc.getPage(i + 1);
+    await redactPageAsRaster(libPage, outDoc, jsPage, marks, dpi);
+    (libPage as unknown as { node: PageNode }).node?.delete?.(PDFName.of("Annots"));
   }
 
   stripMetadata(outDoc);

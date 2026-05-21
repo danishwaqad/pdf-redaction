@@ -174,7 +174,7 @@ export const useRedactionStore = create<RedactionState>()(
           showRedactionWarning: false,
           isHybridPdf: hybrid.isHybrid,
           hybridPageIndices: hybrid.hybridPageIndices,
-          flattenBeforeRedact: hybrid.isHybrid,
+          flattenBeforeRedact: false,
           lastApplyUsedFlatten: false,
         });
       } catch (e) {
@@ -271,7 +271,7 @@ export const useRedactionStore = create<RedactionState>()(
           ocrProgress: 100,
           isHybridPdf: hybrid.isHybrid,
           hybridPageIndices: hybrid.hybridPageIndices,
-          flattenBeforeRedact: hybrid.isHybrid,
+          flattenBeforeRedact: false,
           drawHint: "OCR done. Draw boxes and click Apply Redactions.",
         });
       } catch (e) {
