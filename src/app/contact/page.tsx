@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
   "Contact Us - RedactPDF",
-  "Contact RedactPDF support for questions about PDF redaction, privacy, and bugs.",
+  "Contact RedactPDF for questions about PDF redaction, privacy, and bugs.",
   "/contact"
 );
 
@@ -15,7 +15,7 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        badge="Support"
+        badge="Contact"
         title="Contact Us"
         subtitle="Questions about privacy, bugs, or partnerships — we read every message."
       />
@@ -31,7 +31,7 @@ export default function ContactPage() {
                 Email us directly
               </h2>
               <p className="mt-3 text-muted-foreground">
-                Support, feedback, and partnerships:
+                Questions, feedback, and partnerships:
               </p>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}

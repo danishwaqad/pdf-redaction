@@ -3,7 +3,7 @@
   "name": "Redact PDF with 1 click",
   "short_name": "RedactPDF",
   "version": "1.0.0",
-  "description": "Open RedactPDF.io to permanently redact PDFs in your browser — no upload required.",
+  "description": "Open RedactPDF.io to permanently redact PDFs — mark in browser, secure apply.",
   "homepage_url": "https://redactpdf.io",
   "icons": {
     "48": "/icon-48.png",

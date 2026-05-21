@@ -17,7 +17,7 @@ export function ToolClient() {
           </div>
           <h1 className="text-2xl font-bold md:text-3xl">PDF Redaction Tool</h1>
           <p className="mt-2 text-muted-foreground">
-            No ads · No upload · Permanent redaction in your browser
+            No ads · Mark in browser · Secure apply · Permanent redaction
           </p>
         </div>
         <PdfUploader variant="hero" />

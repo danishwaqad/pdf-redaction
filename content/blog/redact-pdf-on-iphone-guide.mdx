@@ -5,7 +5,7 @@ date: "2026-05-15"
 readTime: "11 min"
 faqs:
   - question: "Can I redact a PDF on iPhone without uploading it?"
-    answer: "Yes, using Safari with a browser-only tool like RedactPDF that processes files locally in memory."
+    answer: "Yes, using Safari with RedactPDF: marking runs in the browser; Apply uses our secure service over HTTPS (no stored copies)."
   - question: "Does RedactPDF work in Safari on iOS?"
     answer: "Yes. Use Safari 15+ on iPhone or iPad. Draw redaction boxes with touch; download the redacted file to Files."
   - question: "Why avoid the iOS Markup black highlighter for sensitive PDFs?"
@@ -93,7 +93,7 @@ Try long-press select on a blacked area — text should not highlight.
 
 ## Privacy on cellular networks
 
-Even on LTE/5G, **local processing** means PDF bytes are not sent to RedactPDF servers. Only static JS assets and optional analytics requests hit the network. See [/privacy-policy](/privacy-policy).
+On LTE/5G, **marking** stays in Safari; **Apply redaction** sends the PDF over HTTPS once (processed in memory, not stored). Static JS and optional analytics are separate. See [/privacy-policy](/privacy-policy).
 
 ## What not to do on iOS
 
@@ -104,7 +104,7 @@ Even on LTE/5G, **local processing** means PDF bytes are not sent to RedactPDF s
 
 ## Accessibility
 
-VoiceOver users: focus order follows toolbar → canvas. Contact [support@redactpdf.io](mailto:support@redactpdf.io) for friction reports — we iterate on mobile UX.
+VoiceOver users: focus order follows toolbar → canvas. Contact [danishwaqad@gmail.com](mailto:danishwaqad@gmail.com) for friction reports — we iterate on mobile UX.
 
 ## Sync with desktop workflow
 
@@ -151,7 +151,7 @@ Service worker caching (future enhancement) may improve offline; today cache JS 
 
 ## Corporate counsel travel tips
 
-Use airplane mode while redacting in flight — confirms no upload path is required. Re-enable connectivity only for email of the **redacted** output via firm-approved encryption.
+Use airplane mode while **marking** in flight if policy requires; you will need connectivity for **Apply**. Re-enable network only for apply/export and for email of the **redacted** output via firm-approved encryption.
 
 ## Split View on iPad Pro
 

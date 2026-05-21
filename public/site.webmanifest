@@ -1,7 +1,7 @@
 {
   "name": "RedactPDF",
   "short_name": "RedactPDF",
-  "description": "Free browser-only PDF redaction. No upload.",
+  "description": "Free PDF redaction. Mark in browser, secure apply, no file storage.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

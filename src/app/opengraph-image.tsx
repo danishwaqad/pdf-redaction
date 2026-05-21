@@ -50,7 +50,7 @@ export default function OgImage() {
           Redact PDF Free
         </p>
         <p style={{ fontSize: 28, color: "#64748b", marginTop: 16 }}>
-          No upload · Browser-only · Permanent redaction
+          Mark in browser · Secure apply · No file storage
         </p>
       </div>
     ),

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PdfUploader } from "@/components/pdf/pdf-uploader";
+import { HERO_BADGE, HERO_SUBTITLE, HERO_TITLE } from "@/lib/site-messaging";
 
 export function Hero() {
   return (
@@ -11,13 +12,13 @@ export function Hero() {
         <div className="flex flex-col items-center text-center">
           <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-sm font-medium text-emerald-800">
             <Lock className="h-4 w-4" />
-            100% browser-side · Zero upload
+            {HERO_BADGE}
           </span>
           <h1 className="text-balance max-w-4xl text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
-            Redact PDF Online — Free, No Signup, No Upload
+            {HERO_TITLE}
           </h1>
           <p className="text-balance mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl">
-            Permanently black out text from PDF in your browser. The secure Adobe Acrobat alternative.
+            {HERO_SUBTITLE}
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button asChild size="lg" className="h-12 px-8 text-base shadow-md">

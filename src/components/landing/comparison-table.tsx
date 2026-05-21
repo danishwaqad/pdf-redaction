@@ -1,6 +1,8 @@
+import { COMPARISON_STORES_PDF } from "@/lib/site-messaging";
+
 const rows = [
   { feature: "Price", redactpdf: "Free", adobe: "Paid", smallpdf: "Freemium" },
-  { feature: "Upload Required", redactpdf: "No", adobe: "Yes", smallpdf: "Yes" },
+  { feature: "Stores your PDF", redactpdf: COMPARISON_STORES_PDF, adobe: "Varies", smallpdf: "Yes" },
   { feature: "Signup", redactpdf: "No", adobe: "Yes", smallpdf: "Often" },
   { feature: "Unlimited", redactpdf: "Yes", adobe: "No", smallpdf: "Limited" },
 ];
@@ -11,7 +13,7 @@ export function ComparisonTable() {
       <div className="mx-auto max-w-4xl px-4">
         <h2 className="text-center text-3xl font-bold tracking-tight">Why RedactPDF wins</h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
-          Compare the only free tool that never uploads your file.
+          Compare free redaction — we do not keep copies; Apply uses HTTPS only.
         </p>
         <div className="mt-10 overflow-x-auto rounded-2xl border shadow-card">
           <table className="w-full min-w-[480px] text-sm">

@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHero } from "@/components/layout/page-hero";
+import { REDACTION_DATA_FLOW } from "@/lib/site-messaging";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
   "FAQ — Redact PDF Online Free, Secure & Permanent",
-  "Answers about browser-only PDF redaction, security, GDPR, court filings, and how RedactPDF differs from black boxes.",
+  "Answers about PDF redaction, security, GDPR, court filings, and how RedactPDF works.",
   "/faq"
 );
 
 const faqs = [
   {
-    q: "Is RedactPDF really secure? Does my PDF upload to your servers?",
-    a: "No upload ever occurs. Redaction runs 100% in your browser. When you close the tab, we never had your file.",
+    q: "Does my PDF upload to your servers?",
+    a: `You open and mark files in your browser. ${REDACTION_DATA_FLOW} Contact form messages are separate and do not include your PDF.`,
   },
   {
     q: "What is the difference between redaction and blacking out?",
@@ -24,7 +25,7 @@ const faqs = [
   },
   {
     q: "Is RedactPDF GDPR compliant?",
-    a: "We do not process PDFs on our servers, supporting data minimization. You remain responsible for lawful basis and verification.",
+    a: "We do not store PDFs after redaction. Transient processing over HTTPS supports data minimization. You remain responsible for lawful basis, verification, and any onward transfer of the redacted file.",
   },
   {
     q: "Are there ads on the redaction tool?",
@@ -32,7 +33,7 @@ const faqs = [
   },
   {
     q: "What is the maximum file size?",
-    a: "100 MB per PDF in current versions.",
+    a: "100 MB to open in the editor. Large files may be slower on Apply; production hosting may limit request size (see Privacy Policy).",
   },
 ];
 
@@ -56,9 +57,9 @@ export default function FaqPage() {
       <PageHero
         badge="Help"
         title="Frequently Asked Questions"
-        subtitle="Security, legal context, and how our free browser redaction works."
+        subtitle="Security, legal context, and how our free PDF redaction works."
       />
-      <div className="mx-auto max-w-3xl px-4 py-12">
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
         <dl className="space-y-8">
           {faqs.map((f) => (
             <div key={f.q} className="rounded-xl border bg-white p-6 shadow-card">

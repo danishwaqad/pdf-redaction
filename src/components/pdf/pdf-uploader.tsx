@@ -6,6 +6,7 @@ import { FileUp, Upload } from "lucide-react";
 import { useRedactionStore } from "@/store/redaction-store";
 import { cn, formatFileSize } from "@/lib/utils";
 import { MAX_FILE_SIZE } from "@/lib/pdf/pdf-loader";
+import { UPLOADER_HINT } from "@/lib/site-messaging";
 
 interface PdfUploaderProps {
   variant?: "hero" | "compact";
@@ -88,7 +89,7 @@ export function PdfUploader({
               {isLoading ? "Loading PDF…" : "Drop your PDF here or click to browse"}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Max {formatFileSize(MAX_FILE_SIZE)} · Stays on your device
+              {UPLOADER_HINT.replace("100 MB", formatFileSize(MAX_FILE_SIZE))}
             </p>
           </div>
         </div>

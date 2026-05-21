@@ -5,6 +5,8 @@ import { PageHero } from "@/components/layout/page-hero";
 import { LegalProse } from "@/components/layout/legal-prose";
 import { ContentWithAds } from "@/components/layout/content-with-ads";
 import { Button } from "@/components/ui/button";
+import { REDACTION_DATA_FLOW } from "@/lib/site-messaging";
+import { CONTACT_EMAIL } from "@/lib/site-contact";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
@@ -19,19 +21,19 @@ export default function AboutPage() {
       <PageHero
         badge="Our story"
         title="About RedactPDF"
-        subtitle="Privacy should be free. Your documents should never touch our servers."
+        subtitle="Privacy should be free. No signup walls and no stored copies of your PDF."
       />
       <ContentWithAds>
         <LegalProse embedded>
           <p>
-            We built RedactPDF because Adobe put redaction behind a $20/mo paywall. Privacy should be free. Your
-            documents should never touch our servers — not for redaction, not for storage, not for training.
+            We built RedactPDF because Adobe put redaction behind a $20/mo paywall. Privacy should be free.
+            Millions of people need to black out a social security number, remove a client name from an exhibit,
+            or publish a GDPR-safe DSAR response every month — without enterprise software or a cloud inbox that
+            keeps their files.
           </p>
           <p>
-            Millions of people need to black out a social security number, remove a client name from an exhibit,
-            or publish a GDPR-safe DSAR response every month. They should not need enterprise software or a
-            cloud upload that creates compliance review. RedactPDF runs pdf.js and pdf-lib entirely in your
-            browser, with permanent raster redaction when you download.
+            {REDACTION_DATA_FLOW} Preview, search, and marking run in your browser. OCR for scanned pages
+            runs locally when you need it.
           </p>
 
           <h2>Our mission</h2>
@@ -39,8 +41,8 @@ export default function AboutPage() {
             Make document privacy accessible to everyone.
           </p>
           <p>
-            That means no signup walls, no file uploads, and honest marketing: we tell you exactly what happens
-            on your device. We fund the site through optional ads on educational pages — never on the{" "}
+            That means no signup walls and honest marketing: we explain when HTTPS redaction runs and that we do
+            not store your PDF. We fund the site through optional ads on educational pages — never on the{" "}
             <Link href="/tool">redaction tool</Link> itself.
           </p>
 
@@ -58,9 +60,9 @@ export default function AboutPage() {
               <p className="text-sm font-medium text-brand">Software Engineer</p>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 Danish spent eight years in application security before focusing on document workflows. He leads
-                RedactPDF&apos;s client-side architecture — ensuring redaction stays local, verifiable, and free.
-                Contact Danish via{" "}
-                <a href="mailto:danishwaqad@gmail.com">danishwaqad@gmail.com</a>.
+                RedactPDF&apos;s product — browser marking plus secure redaction on export, with verification
+                built in. Contact via{" "}
+                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
             </div>
           </div>
@@ -68,17 +70,17 @@ export default function AboutPage() {
           <h2>What we believe</h2>
           <ul>
             <li>Permanent redaction beats cosmetic black boxes</li>
-            <li>Local processing beats cloud convenience for sensitive PDFs</li>
+            <li>Transient HTTPS processing beats long-term cloud storage for sensitive PDFs</li>
             <li>Verification (search + copy tests) is non-negotiable before sharing</li>
             <li>Legal and privacy education should be free to read</li>
           </ul>
 
-          <div className="not-prose mt-10">
-            <Button asChild size="lg">
-              <Link href="/tool">Try RedactPDF free</Link>
-            </Button>
-          </div>
         </LegalProse>
+        <div className="mt-10">
+          <Button asChild size="lg" className="shadow-md">
+            <Link href="/tool">Try RedactPDF free</Link>
+          </Button>
+        </div>
       </ContentWithAds>
     </>
   );

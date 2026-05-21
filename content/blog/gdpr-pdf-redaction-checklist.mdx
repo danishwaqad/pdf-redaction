@@ -1,11 +1,11 @@
 ---
 title: "GDPR PDF Redaction Checklist for Privacy Teams (2026)"
-description: "A practical GDPR-aligned checklist for PDF redaction — lawful basis, data minimization, browser-only tools, verification, and documentation for DPIAs."
+description: "A practical GDPR-aligned checklist for PDF redaction — lawful basis, data minimization, transient processing, verification, and DPIA documentation."
 date: "2026-05-01"
 readTime: "15 min"
 faqs:
-  - question: "Is browser-only PDF redaction GDPR compliant?"
-    answer: "Tools that process data locally without uploading to servers support data minimization. You remain responsible for lawful basis, retention, and accuracy."
+  - question: "Is RedactPDF-style PDF redaction GDPR-friendly?"
+    answer: "Tools that avoid long-term storage and use transient HTTPS processing support data minimization. You remain responsible for lawful basis, retention, verification, and onward transfer of redacted files."
   - question: "Do I need a DPIA for PDF redaction software?"
     answer: "When processing likely results in high risk to individuals, a DPIA may be required. Local-only tools reduce vendor risk but do not eliminate your obligations."
   - question: "Can I redact personal data and still fulfill access requests?"
@@ -54,7 +54,7 @@ If software uploads PDFs, collect:
 - Encryption in transit and at rest
 - Deletion SLA after processing
 
-[RedactPDF](/privacy-policy) — no upload, no storage — eliminates most vendor transfer questions for the editing step.
+[RedactPDF](/privacy-policy) — secure HTTPS apply, no stored copies — reduces vendor retention risk versus upload-and-hold SaaS.
 
 ## Technical checklist before redaction
 
@@ -147,7 +147,7 @@ Score each candidate 0–2:
 | Audit log / certificate | 2 |
 | EU vendor with DPA | 2 (if cloud) |
 
-RedactPDF scores high on local processing and permanent removal without a DPA for file processing — because files are not processed on our servers.
+RedactPDF scores high on data minimization (no stored PDFs) and permanent removal — transient processing still requires your DPIA to cover the HTTPS apply step.
 
 ## Role-based responsibilities (RACI-style)
 

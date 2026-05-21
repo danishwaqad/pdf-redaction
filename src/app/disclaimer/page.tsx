@@ -35,6 +35,13 @@ export default function DisclaimerPage() {
           Run text search, selection tests, and human review. Complex PDFs (forms, portfolios, embedded
           files) may need additional steps we do not automate.
         </p>
+        <h2>Data processing</h2>
+        <p>
+          Redaction apply sends your PDF over HTTPS to our secure processing service. We do not store PDFs
+          after the response. Marketing on other pages may describe &quot;browser&quot; workflows — the apply
+          step always uses this transient server processing unless you use an offline build we publish
+          separately.
+        </p>
         <h2>No affiliation</h2>
         <p>
           RedactPDF is not affiliated with Adobe®, Smallpdf®, or any court system. Trademarks belong to

@@ -9,7 +9,8 @@ const proseBody = cn(
   "[&_ol]:mb-4 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_ol]:text-slate-600",
   "[&_li]:leading-relaxed",
   "[&_strong]:font-semibold [&_strong]:text-foreground",
-  "[&_a]:font-medium [&_a]:text-brand [&_a]:underline-offset-2 hover:[&_a]:underline"
+  "[&_a]:font-medium [&_a]:text-brand [&_a]:underline-offset-2 hover:[&_a]:underline",
+  "[&_.not-prose_a]:!text-primary-foreground [&_.not-prose_a]:hover:!text-primary-foreground [&_.not-prose_a]:no-underline hover:[&_.not-prose_a]:no-underline"
 );
 
 export function LegalProse({

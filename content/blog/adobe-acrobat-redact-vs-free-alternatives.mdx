@@ -7,9 +7,9 @@ faqs:
   - question: "Does Adobe Acrobat redact permanently?"
     answer: "Acrobat Pro's Redact tool can permanently remove content when used correctly and applied. Always run Acrobat's sanitization and search checks."
   - question: "What is the best free alternative to Adobe redaction?"
-    answer: "Browser-based tools that rasterize redacted regions locally without uploading files, such as RedactPDF, meet many users' needs at no cost."
+    answer: "Tools that permanently remove text inside redaction boxes, such as RedactPDF (secure HTTPS apply, no storage), meet many users' needs at no cost."
   - question: "Is Smallpdf safe for confidential PDFs?"
-    answer: "Smallpdf uploads files to cloud servers. For sensitive data, prefer client-side tools that never transmit your document."
+    answer: "Smallpdf uploads files to cloud servers. For sensitive data, prefer tools that do not retain copies — and understand when HTTPS apply still transmits the file transiently."
 ---
 
 Adobe Acrobat defined the PDF category, so many professionals assume its redaction feature is the only acceptable choice. Acrobat Pro remains powerful — but in 2026 it is **paid**, **desktop-centric**, and overkill for quick confidentiality tasks. This article compares Acrobat redaction to free alternatives, with emphasis on **privacy**, **permanent removal**, and **total cost of ownership**.
@@ -46,9 +46,9 @@ If you redact three invoices per quarter, subscription economics fail.
 **Pros:** Local processing  
 **Cons:** Fragmented redaction features; may not guarantee text removal without extra steps
 
-### Browser-only permanent redaction ([RedactPDF](/tool))
+### Browser mark + secure apply ([RedactPDF](/tool))
 
-**Pros:** No signup, no upload, auto-detect PII patterns, rasterized output, certificate download  
+**Pros:** No signup, no file storage, auto-detect PII patterns, permanent text removal, certificate download  
 **Cons:** No enterprise DMS integration; large scanned books may be slower than native desktop on low-end hardware
 
 ## Side-by-side comparison
@@ -56,7 +56,7 @@ If you redact three invoices per quarter, subscription economics fail.
 | Factor | Adobe Acrobat Pro | Smallpdf (cloud) | RedactPDF |
 |--------|-------------------|------------------|-----------|
 | Price | ~$20/mo | Freemium | Free |
-| Upload required | Desktop: No; Cloud: varies | Yes | **No** |
+| Stores PDF after processing | Desktop: No; Cloud: varies | Yes | **No** |
 | Permanent redaction | Yes (when applied) | Varies | Yes (rasterized) |
 | Auto-detect PII | Limited | Some tools | Email, phone, SSN, cards |
 | GDPR-friendly local processing | Desktop yes | No | **Yes** |
@@ -66,7 +66,7 @@ If you redact three invoices per quarter, subscription economics fail.
 
 Regulated industries ask: *where did the file go?* Acrobat desktop keeps processing local. Many "free online PDF" sites answer: *our servers in region X for 14 days*.
 
-[RedactPDF's privacy policy](/privacy-policy) states clearly: we do not upload, store, or see your PDF. Processing uses JavaScript and WebAssembly in your browser. When you close the tab, the in-memory file is gone.
+[RedactPDF's privacy policy](/privacy-policy) explains: mark in the browser; Apply sends the PDF over HTTPS for secure processing in memory, not stored. When you close the tab, the in-browser copy is gone from our servers' perspective after the response.
 
 For GDPR data minimization, avoiding transfer is the strongest technical control available to a SaaS-free tool.
 
@@ -132,7 +132,7 @@ Acrobat integrates redaction codes (labels like "Privacy"), batch scripts, Actio
 
 ## Smallpdf and iLovePDF: the upload question
 
-These brands excel at UX and marketing funnels. Their privacy policies describe server processing — acceptable for public marketing PDFs, risky for M&A teasers or patient records. Security questionnaires increasingly ask "does any vendor receive full document contents?" If yes, legal may require DPAs and transfer mechanisms. Browser-only tools answer "no" for the editing step.
+These brands excel at UX and marketing funnels. Their privacy policies describe server processing — acceptable for public marketing PDFs, risky for M&A teasers or patient records. Security questionnaires increasingly ask "does any vendor receive full document contents?" If yes, legal may require DPAs and transfer mechanisms. Tools without long-term storage answer "no retained copy" — still document transient HTTPS apply in your DPIA.
 
 ## RedactPDF feature walkthrough for Acrobat migrants
 

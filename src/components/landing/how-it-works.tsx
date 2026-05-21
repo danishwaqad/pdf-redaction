@@ -3,8 +3,8 @@ import { Upload, MousePointer2, Download } from "lucide-react";
 const steps = [
   {
     icon: Upload,
-    title: "Upload",
-    desc: "Open your PDF in the editor. Marking happens in your browser.",
+    title: "Open",
+    desc: "Choose a PDF — it loads in your browser for preview and marking.",
   },
   {
     icon: MousePointer2,
@@ -13,8 +13,8 @@ const steps = [
   },
   {
     icon: Download,
-    title: "Download",
-    desc: "Apply to permanently remove text (not just black boxes), then download with a certificate.",
+    title: "Apply & download",
+    desc: "Apply permanent redaction (HTTPS, not stored), then download with a certificate.",
   },
 ];
 

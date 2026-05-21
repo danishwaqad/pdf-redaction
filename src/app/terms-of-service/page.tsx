@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/layout/page-hero";
 import { LegalProse } from "@/components/layout/legal-prose";
+import { CONTACT_EMAIL } from "@/lib/site-contact";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
@@ -18,8 +19,8 @@ export default function TermsOfServicePage() {
 
         <h2>Service description</h2>
         <p>
-          <strong>RedactPDF is provided &quot;as-is&quot; for free.</strong> We offer browser-based tools to
-          mark and export redacted PDFs. Features may change without notice.
+          <strong>RedactPDF is provided &quot;as-is&quot; for free.</strong> We offer browser-based marking and
+          secure server-assisted export over HTTPS to produce redacted PDFs. Features may change without notice.
         </p>
 
         <h2>No warranty</h2>
@@ -75,7 +76,7 @@ export default function TermsOfServicePage() {
 
         <h2>Contact</h2>
         <p>
-          <a href="mailto:legal@redactpdf.io">legal@redactpdf.io</a>
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         </p>
       </LegalProse>
     </>

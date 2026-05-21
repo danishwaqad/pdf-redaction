@@ -1,11 +1,13 @@
+import { REDACTION_DATA_FLOW } from "@/lib/site-messaging";
+
 const faqs = [
   {
     q: "Is it really secure?",
-    a: "Yes. RedactPDF runs entirely in your browser using WebAssembly and JavaScript. Your PDF is never sent to our servers — we have no backend file storage.",
+    a: `Yes. You mark redactions in your browser. ${REDACTION_DATA_FLOW} We do not keep a cloud copy of your PDF.`,
   },
   {
     q: "What is the difference between redaction and blacking out?",
-    a: "RedactPDF removes extractable text inside your boxes and burns in black fills on export. Other text on the page stays searchable. Hybrid PDFs (text + images) can use Flatten for image-level security.",
+    a: "RedactPDF removes extractable text inside your boxes and burns in black fills on export. Other text on the page stays searchable. Hybrid PDFs (text + images) can use secure mode for image-heavy pages.",
   },
   {
     q: "Is it legal for court documents?",
@@ -13,7 +15,7 @@ const faqs = [
   },
   {
     q: "Is RedactPDF GDPR compliant?",
-    a: "Because files never leave your device, you remain the data controller. No personal data is processed on our servers during redaction.",
+    a: "We do not store PDFs after processing. Transient HTTPS redaction supports data minimization; you remain the data controller and must verify outputs before sharing.",
   },
 ];
 

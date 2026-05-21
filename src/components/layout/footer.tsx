@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { FOOTER_BLURB } from "@/lib/site-messaging";
 
 const legalLinks = [
   { href: "/about", label: "About" },
@@ -31,7 +32,7 @@ export function Footer() {
           <div>
             <p className="text-lg font-bold text-white">RedactPDF.io</p>
             <p className="mt-2 text-sm leading-relaxed">
-              Free browser-only PDF redaction. No upload. No signup. Permanent removal.
+              {FOOTER_BLURB}
             </p>
             <p className="mt-4 text-xs text-slate-500">Site launched {LAUNCH_DATE}</p>
           </div>

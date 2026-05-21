@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { REDACTION_DATA_FLOW } from "@/lib/site-messaging";
 
 export function BlogCta() {
   return (
@@ -10,9 +11,9 @@ export function BlogCta() {
           <Shield className="h-7 w-7" />
         </div>
         <div className="flex-1">
-          <h3 className="text-xl font-bold text-foreground">Redact your PDF free — no upload</h3>
+          <h3 className="text-xl font-bold text-foreground">Redact your PDF free</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Permanent browser-only redaction. No signup. Your file never leaves your device.
+            {REDACTION_DATA_FLOW}
           </p>
         </div>
         <Button asChild size="lg" className="shrink-0">
