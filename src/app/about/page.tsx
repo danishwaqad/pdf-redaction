@@ -22,7 +22,7 @@ export default function AboutPage() {
         subtitle="Privacy should be free. Your documents should never touch our servers."
       />
       <ContentWithAds>
-        <LegalProse className="py-0">
+        <LegalProse embedded>
           <p>
             We built RedactPDF because Adobe put redaction behind a $20/mo paywall. Privacy should be free. Your
             documents should never touch our servers — not for redaction, not for storage, not for training.

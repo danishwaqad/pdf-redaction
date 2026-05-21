@@ -4,42 +4,37 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CONTACT_EMAIL } from "@/lib/site-contact";
 import { Loader2, Send } from "lucide-react";
-
-const FORMSPREE_ENDPOINT =
-  process.env.NEXT_PUBLIC_FORMSPREE_ID
-    ? `https://formspree.io/f/${process.env.NEXT_PUBLIC_FORMSPREE_ID}`
-    : null;
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
 
-    if (!FORMSPREE_ENDPOINT) {
-      const name = data.get("name");
-      const email = data.get("email");
-      const message = data.get("message");
-      window.location.href = `mailto:support@redactpdf.io?subject=${encodeURIComponent(`Contact from ${name}`)}&body=${encodeURIComponent(`${message}\n\n— ${name} (${email})`)}`;
-      return;
-    }
-
     setStatus("loading");
+    setErrorMsg(null);
+
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch("/api/contact", {
         method: "POST",
         body: data,
-        headers: { Accept: "application/json" },
       });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (res.ok) {
         setStatus("success");
         form.reset();
-      } else setStatus("error");
+      } else {
+        setStatus("error");
+        setErrorMsg(json.error ?? "Something went wrong.");
+      }
     } catch {
       setStatus("error");
+      setErrorMsg("Network error. Please try again or email us directly.");
     }
   }
 
@@ -47,11 +42,18 @@ export function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" name="name" required placeholder="Your name" />
+        <Input id="name" name="name" required placeholder="Your name" autoComplete="name" />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" required placeholder="you@company.com" />
+        <Label htmlFor="email">Your email</Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          required
+          placeholder="you@company.com"
+          autoComplete="email"
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="message">Message</Label>
@@ -73,19 +75,16 @@ export function ContactForm() {
         Send message
       </Button>
       {status === "success" && (
-        <p className="text-sm text-emerald-600">Thank you — we&apos;ll respond within 2 business days.</p>
+        <p className="text-sm text-emerald-600">
+          Message sent — we&apos;ll reply to your email within 2 business days.
+        </p>
       )}
       {status === "error" && (
         <p className="text-sm text-destructive">
-          Something went wrong. Email us directly at{" "}
-          <a href="mailto:support@redactpdf.io" className="underline">
-            support@redactpdf.io
+          {errorMsg}{" "}
+          <a href={`mailto:${CONTACT_EMAIL}`} className="font-medium underline">
+            {CONTACT_EMAIL}
           </a>
-        </p>
-      )}
-      {!FORMSPREE_ENDPOINT && (
-        <p className="text-xs text-muted-foreground">
-          Form opens your email client. Set NEXT_PUBLIC_FORMSPREE_ID for direct submission.
         </p>
       )}
     </form>

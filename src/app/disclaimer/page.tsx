@@ -14,12 +14,14 @@ export default function DisclaimerPage() {
     <>
       <PageHero badge="Legal" title="Disclaimer" subtitle="Important limitations of our tools and content" />
       <LegalProse>
-        <p>
-          <strong>
-            RedactPDF provides tools for redaction. We do not provide legal advice. For court/GDPR/HIPAA
-            compliance, consult your lawyer.
-          </strong>
-        </p>
+        <div className="rounded-xl border border-amber-200/90 bg-amber-50 px-4 py-4 sm:px-5 sm:py-5">
+          <p className="!mb-0 text-sm font-medium leading-relaxed text-amber-950 sm:text-base">
+            <strong>
+              RedactPDF provides tools for redaction. We do not provide legal advice. For court/GDPR/HIPAA
+              compliance, consult your lawyer.
+            </strong>
+          </p>
+        </div>
         <p>
           Blog posts, FAQs, and guides are educational only. They are not a substitute for qualified legal
           counsel in your jurisdiction. Court rules, e-filing requirements, and regulatory obligations vary.
