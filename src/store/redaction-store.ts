@@ -19,7 +19,7 @@ import {
   searchTextSpans,
   type PatternKey,
 } from "@/lib/pdf/text";
-import { analyzeHybridPdf } from "@/lib/pdf/redact-apply";
+import { analyzeHybridPdf } from "@/lib/pdf/hybrid-detect";
 import { runOcrOnPdf } from "@/lib/pdf/ocr";
 import { autoDetectAllRedactionBoxes, getSpansMarkedForRemoval } from "@/lib/pdf/intersect";
 import type { RedactionRect, TextSpan } from "@/lib/pdf/types";

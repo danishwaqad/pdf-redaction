@@ -4,7 +4,7 @@ const steps = [
   {
     icon: Upload,
     title: "Upload",
-    desc: "Drag & drop your PDF. It stays on your device — never uploaded.",
+    desc: "Open your PDF in the editor. Marking happens in your browser.",
   },
   {
     icon: MousePointer2,
@@ -14,7 +14,7 @@ const steps = [
   {
     icon: Download,
     title: "Download",
-    desc: "Get a permanently redacted PDF plus a redaction certificate.",
+    desc: "Apply to permanently remove text (not just black boxes), then download with a certificate.",
   },
 ];
 

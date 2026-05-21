@@ -1,59 +1,66 @@
 # RedactPDF
 
-Free, browser-only PDF redaction. No upload, no signup — built with Next.js 14, pdf.js, pdf-lib, and Zustand.
+Professional PDF redaction — draw boxes, search, detect PII, apply permanent redaction.
+
+## Stack
+
+| Layer | Technology |
+|-------|------------|
+| UI | Next.js 14, pdf.js, Zustand |
+| Redaction | FastAPI + **PyMuPDF** |
+| Preview & marks | Browser |
 
 ## Features
 
-- Drag-drop PDF upload (max 100MB) with pdf.js viewer
-- Manual redaction rectangles (click + drag)
-- Text search with optional regex — Redact All
-- Auto-detect: email, phone, credit card (Luhn), dates, SSN
-- Permanent redaction via page rasterization (copy-paste safe)
-- Redaction certificate `.txt` download
-- SEO landing page, blog, FAQ schema, Plausible analytics hook
+- Manual redaction boxes with undo/redo
+- Text search (regex) and PII auto-detect
+- Permanent redaction (text removed from the PDF, not only covered)
+- Scanned PDF OCR (browser Tesseract)
+- Hybrid PDF detection (Canva-style) + optional secure page mode
 
-## Development
+## Local development
+
+**Terminal 1 — redaction API**
+
+```bash
+npm run dev:api
+```
+
+**Terminal 2 — website**
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000/tool](http://localhost:3000/tool).
 
-## Deploy (Vercel)
+`.env.local`:
 
-1. Import repo to Vercel
-2. Set `NEXT_PUBLIC_SITE_URL` and optional `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`
-3. Deploy — static + edge OG image, no backend required
+```env
+REDACT_API_URL=http://127.0.0.1:8000
+```
 
-## Chrome extension
-
-Copy `public/extension-manifest.json` to `manifest.json` in an unpacked extension folder along with `extension-background.js` and icons.
-
-## Site pages (21 routes)
-
-| Path | Purpose |
-|------|---------|
-| `/` | SEO landing (no ads) |
-| `/tool` | Redaction editor (no ads) |
-| `/blog` + 5 MDX posts | Content + AdSense placeholders |
-| `/about` | Trust page (ads allowed) |
-| `/privacy-policy`, `/terms-of-service`, `/disclaimer`, `/contact` | Legal / AdSense trust |
-| `/faq`, `/security` | SEO + trust |
-
-## Project structure
+## Project layout
 
 ```
-content/blog/       # MDX posts (1500+ words)
+backend/           FastAPI + PyMuPDF
 src/
-├── app/              # Next.js routes, OG image, sitemap
-├── components/
-│   ├── app/          # Editor shell
-│   ├── landing/      # Marketing sections
-│   ├── layout/       # Header, footer, privacy banner
-│   ├── pdf/          # Viewer, uploader, tools
-│   └── ui/           # shadcn-style primitives
-├── lib/pdf/          # pdf.js loader, patterns, redact engine
-└── store/            # Zustand + immer undo/redo
+  app/api/redact/  Proxy to backend
+  components/pdf/  Viewer, toolbar, sidebar
+  lib/pdf/         Viewer helpers + API client
+  store/           App state
 ```
+
+## Deploy
+
+See [DEPLOY.md](./DEPLOY.md) — Vercel (frontend) + Railway/Render (API).
+
+## Scripts
+
+| Command | Purpose |
+|---------|---------|
+| `npm run dev` | Next.js |
+| `npm run dev:api` | PyMuPDF API |
+| `node scripts/test-pymupdf-redact.mjs` | API smoke test (API must be running) |

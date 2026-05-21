@@ -15,7 +15,7 @@ export function rectsIntersect(a: BBox, b: BBox, pad = 2): boolean {
   return !(ax2 < b.x - pad || bx2 < a.x - pad || ay2 < b.y - pad || by2 < a.y - pad);
 }
 
-const SPAN_PAD = 10;
+const SPAN_PAD = 2;
 const AUTO_DETECT_PAD = 14;
 
 export function getSpansMarkedForRemoval(

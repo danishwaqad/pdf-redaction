@@ -13,13 +13,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRedactionStore } from "@/store/redaction-store";
-import { applyRedactionsPermanent, buildRedactionCertificate } from "@/lib/pdf/redact-apply";
+import {
+  applyRedactionsViaApi,
+  buildRedactionCertificate,
+  redactApiUnavailableMessage,
+} from "@/lib/pdf/redact-api";
 import { certificateFilename, downloadBlob, redactedFilename } from "@/lib/utils";
 
 export function RedactionToolbar() {
   const fileName = useRedactionStore((s) => s.fileName);
   const pdfBytes = useRedactionStore((s) => s.pdfBytes);
-  const numPages = useRedactionStore((s) => s.numPages);
   const redactions = useRedactionStore((s) => s.redactions);
   const scale = useRedactionStore((s) => s.scale);
   const setScale = useRedactionStore((s) => s.setScale);
@@ -40,29 +43,35 @@ export function RedactionToolbar() {
   const runOcr = useRedactionStore((s) => s.runOcr);
   const autoDetectAllBoxes = useRedactionStore((s) => s.autoDetectAllBoxes);
   const isHybridPdf = useRedactionStore((s) => s.isHybridPdf);
+  const hybridPageIndices = useRedactionStore((s) => s.hybridPageIndices);
   const flattenBeforeRedact = useRedactionStore((s) => s.flattenBeforeRedact);
   const setFlattenBeforeRedact = useRedactionStore((s) => s.setFlattenBeforeRedact);
+  const lastApplyUsedFlatten = useRedactionStore((s) => s.lastApplyUsedFlatten);
 
   const showOcrBanner = isOcrRunning || (!currentPageHasText && !ocrCompleted && !isHybridPdf);
+  const usedSecure = flattenBeforeRedact && isHybridPdf;
 
   const handleApply = async () => {
     if (!pdfBytes || !redactions.length) return;
     setIsApplying(true);
     try {
-      const out = await applyRedactionsPermanent(pdfBytes, redactions, numPages, {
-        highQuality: flattenBeforeRedact,
+      const out = await applyRedactionsViaApi(pdfBytes, redactions, {
+        secureImagePages: usedSecure,
+        hybridPageIndices,
       });
-      useRedactionStore.setState({ lastApplyUsedFlatten: true });
+      useRedactionStore.setState({ lastApplyUsedFlatten: usedSecure });
       downloadBlob(new Blob([new Uint8Array(out)], { type: "application/pdf" }), redactedFilename(fileName));
       downloadBlob(
-        new Blob([buildRedactionCertificate(redactions.length)], { type: "text/plain" }),
+        new Blob([
+          buildRedactionCertificate(redactions.length),
+        ], { type: "text/plain" }),
         certificateFilename(fileName)
       );
       clearAfterExport();
       setShowRedactionWarning(true);
     } catch (e) {
       console.error(e);
-      alert(e instanceof Error ? e.message : "Redaction failed. Try larger boxes or Auto-Detect.");
+      alert(redactApiUnavailableMessage(e));
     } finally {
       setIsApplying(false);
     }
@@ -74,7 +83,9 @@ export function RedactionToolbar() {
         <div className="flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <p className="flex-1">
-            Done. Marked pages are securely redacted. Pages you did not mark stay normal text.
+            {lastApplyUsedFlatten
+              ? "Your marked pages were fully secured. Other pages are unchanged."
+              : "Redaction complete. Sensitive text was removed from the file—open it and search to confirm."}
           </p>
           <button type="button" className="text-xs underline" onClick={() => setShowRedactionWarning(false)}>
             Dismiss
@@ -112,7 +123,7 @@ export function RedactionToolbar() {
         {isHybridPdf && (
           <span
             className="shrink-0 rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-800"
-            title="Text + images — use Flatten for secure redaction on image backgrounds."
+            title="Text + images (e.g. Canva). Text is removed in your boxes; page design stays. Secure page = full-page image."
           >
             Hybrid
           </span>
@@ -148,18 +159,18 @@ export function RedactionToolbar() {
           </Button>
         )}
 
-        {redactions.length > 0 && (
+        {isHybridPdf && redactions.length > 0 && (
           <label
-            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2 text-xs text-slate-800"
-            title="Sharper export on pages you marked. Those pages become secure images; unmarked pages stay text."
+            className="flex h-9 cursor-pointer items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50/80 px-2 text-xs text-violet-900"
+            title="Optional. ON = entire marked page becomes one image (court-maximum). OFF = only your boxes (default)."
           >
             <input
               type="checkbox"
               checked={flattenBeforeRedact}
               onChange={(e) => setFlattenBeforeRedact(e.target.checked)}
-              className="rounded border-slate-400"
+              className="rounded border-violet-400"
             />
-            High quality (200 DPI)
+            Secure page (image)
           </label>
         )}
 
