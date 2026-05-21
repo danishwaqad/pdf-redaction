@@ -19,6 +19,7 @@ import {
   searchTextSpans,
   type PatternKey,
 } from "@/lib/pdf/text";
+import { analyzeHybridPdf } from "@/lib/pdf/hybrid-detect";
 import { runOcrOnPdf } from "@/lib/pdf/ocr";
 import { autoDetectAllRedactionBoxes, getSpansMarkedForRemoval } from "@/lib/pdf/intersect";
 import type { RedactionRect, TextSpan } from "@/lib/pdf/types";
@@ -50,6 +51,11 @@ interface RedactionState {
   ocrProgress: number;
   drawHint: string | null;
   showRedactionWarning: boolean;
+  isHybridPdf: boolean;
+  hybridPageIndices: number[];
+  flattenBeforeRedact: boolean;
+  currentPageIsHybrid: boolean;
+  lastApplyUsedFlatten: boolean;
 
   loadFile: (file: File) => Promise<void>;
   reset: () => void;
@@ -69,6 +75,7 @@ interface RedactionState {
   setIsApplying: (v: boolean) => void;
   setDrawHint: (msg: string | null) => void;
   setShowRedactionWarning: (v: boolean) => void;
+  setFlattenBeforeRedact: (v: boolean) => void;
   runOcr: () => Promise<void>;
   autoDetectAllBoxes: () => void;
   clearAfterExport: () => void;
@@ -105,6 +112,11 @@ export const useRedactionStore = create<RedactionState>()(
     ocrProgress: 0,
     drawHint: null,
     showRedactionWarning: false,
+    isHybridPdf: false,
+    hybridPageIndices: [],
+    flattenBeforeRedact: false,
+    currentPageIsHybrid: false,
+    lastApplyUsedFlatten: false,
 
     pushHistory: () => {
       set((s) => {
@@ -136,6 +148,12 @@ export const useRedactionStore = create<RedactionState>()(
         } catch {
           /* continue without spans */
         }
+        let hybrid = { isHybrid: false, hybridPageIndices: [] as number[] };
+        try {
+          hybrid = await analyzeHybridPdf(pdfBytes, doc);
+        } catch {
+          /* non-fatal */
+        }
         const mobile =
           typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
         set({
@@ -156,6 +174,11 @@ export const useRedactionStore = create<RedactionState>()(
           ocrProgress: 0,
           drawHint: null,
           showRedactionWarning: false,
+          isHybridPdf: hybrid.isHybrid,
+          hybridPageIndices: hybrid.hybridPageIndices,
+          flattenBeforeRedact: hybrid.isHybrid,
+          currentPageIsHybrid: hybrid.hybridPageIndices.includes(0),
+          lastApplyUsedFlatten: false,
         });
       } catch (e) {
         console.error(e);
@@ -185,6 +208,11 @@ export const useRedactionStore = create<RedactionState>()(
         ocrProgress: 0,
         drawHint: null,
         showRedactionWarning: false,
+        isHybridPdf: false,
+        hybridPageIndices: [],
+        flattenBeforeRedact: false,
+        currentPageIsHybrid: false,
+        lastApplyUsedFlatten: false,
       });
     },
 
@@ -202,7 +230,11 @@ export const useRedactionStore = create<RedactionState>()(
     },
 
     setCurrentPage: (page) => {
-      set({ currentPage: page });
+      const { hybridPageIndices } = get();
+      set({
+        currentPage: page,
+        currentPageIsHybrid: hybridPageIndices.includes(page),
+      });
       const { pdfDoc } = get();
       if (pdfDoc) {
         void pageHasTextLayer(pdfDoc, page).then((currentPageHasText) =>
@@ -217,6 +249,7 @@ export const useRedactionStore = create<RedactionState>()(
     setIsApplying: (v) => set({ isApplying: v }),
     setDrawHint: (msg) => set({ drawHint: msg }),
     setShowRedactionWarning: (v) => set({ showRedactionWarning: v }),
+    setFlattenBeforeRedact: (v) => set({ flattenBeforeRedact: v }),
 
     runOcr: async () => {
       const { pdfDoc, pdfBytes } = get();
@@ -229,6 +262,12 @@ export const useRedactionStore = create<RedactionState>()(
         get().pdfDoc?.destroy();
         const owned = clonePdfBytes(out);
         const doc = await loadPdfDocument(owned);
+        let hybrid = { isHybrid: false, hybridPageIndices: [] as number[] };
+        try {
+          hybrid = await analyzeHybridPdf(owned, doc);
+        } catch {
+          /* non-fatal */
+        }
         set({
           pdfBytes: owned,
           pdfDoc: doc,
@@ -238,6 +277,10 @@ export const useRedactionStore = create<RedactionState>()(
           ocrCompleted: true,
           isOcrRunning: false,
           ocrProgress: 100,
+          isHybridPdf: hybrid.isHybrid,
+          hybridPageIndices: hybrid.hybridPageIndices,
+          flattenBeforeRedact: hybrid.isHybrid,
+          currentPageIsHybrid: hybrid.hybridPageIndices.includes(get().currentPage),
           drawHint: "OCR done. Draw boxes and click Apply Redactions.",
         });
       } catch (e) {

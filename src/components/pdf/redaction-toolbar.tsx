@@ -10,6 +10,7 @@ import {
   Loader2,
   ShieldAlert,
   ScanText,
+  Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRedactionStore } from "@/store/redaction-store";
@@ -39,14 +40,24 @@ export function RedactionToolbar() {
   const ocrCompleted = useRedactionStore((s) => s.ocrCompleted);
   const runOcr = useRedactionStore((s) => s.runOcr);
   const autoDetectAllBoxes = useRedactionStore((s) => s.autoDetectAllBoxes);
+  const isHybridPdf = useRedactionStore((s) => s.isHybridPdf);
+  const hybridPageIndices = useRedactionStore((s) => s.hybridPageIndices);
+  const flattenBeforeRedact = useRedactionStore((s) => s.flattenBeforeRedact);
+  const setFlattenBeforeRedact = useRedactionStore((s) => s.setFlattenBeforeRedact);
+  const lastApplyUsedFlatten = useRedactionStore((s) => s.lastApplyUsedFlatten);
 
-  const showOcrBanner = isOcrRunning || (!currentPageHasText && !ocrCompleted);
+  const showOcrBanner = isOcrRunning || (!currentPageHasText && !ocrCompleted && !isHybridPdf);
 
   const handleApply = async () => {
     if (!pdfBytes || !redactions.length) return;
     setIsApplying(true);
     try {
-      const out = await applyRedactionsPermanent(pdfBytes, redactions, numPages);
+      const usedFlatten = flattenBeforeRedact && isHybridPdf;
+      const out = await applyRedactionsPermanent(pdfBytes, redactions, numPages, {
+        flattenBeforeRedact: usedFlatten,
+        hybridPageIndices,
+      });
+      useRedactionStore.setState({ lastApplyUsedFlatten: usedFlatten });
       downloadBlob(new Blob([new Uint8Array(out)], { type: "application/pdf" }), redactedFilename(fileName));
       downloadBlob(
         new Blob([buildRedactionCertificate(redactions.length)], { type: "text/plain" }),
@@ -68,11 +79,44 @@ export function RedactionToolbar() {
         <div className="flex items-start gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
           <p className="flex-1">
-            Download complete. Only marked areas were redacted; other text stays selectable.
+            {lastApplyUsedFlatten
+              ? "Download complete. Flattened pages are image-only — text is not searchable but redaction is permanent."
+              : "Download complete. Only marked areas were redacted; other text stays selectable."}
           </p>
           <button type="button" className="text-xs underline" onClick={() => setShowRedactionWarning(false)}>
             Dismiss
           </button>
+        </div>
+      )}
+
+      {isHybridPdf && (
+        <div className="space-y-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2">
+          <div className="flex items-start gap-2">
+            <Layers className="mt-0.5 h-4 w-4 shrink-0 text-violet-800" />
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="text-sm font-medium text-violet-950">
+                Hybrid PDF detected. For complete redaction we must flatten the page first.
+              </p>
+              <p className="text-xs text-violet-900/90">
+                Flattening converts the page to an image. Text will not be searchable after
+                redaction but will be 100% secure.
+              </p>
+              {hybridPageIndices.length > 0 && (
+                <p className="text-xs text-violet-800">
+                  Hybrid pages: {hybridPageIndices.map((p) => p + 1).join(", ")}
+                </p>
+              )}
+            </div>
+          </div>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-violet-950">
+            <input
+              type="checkbox"
+              checked={flattenBeforeRedact}
+              onChange={(e) => setFlattenBeforeRedact(e.target.checked)}
+              className="rounded border-violet-400"
+            />
+            Flatten Before Redact
+          </label>
         </div>
       )}
 

@@ -5,10 +5,17 @@ import { getPdfJs, clonePdfBytes } from "./pdf-loader";
 import { extractAllTextSpans } from "./text";
 import { getSpansMarkedForRemoval } from "./intersect";
 import { redactPageContents } from "./content-stream-redact";
+import { flattenPageToImage } from "./flatten-page";
 import type { RedactionRect } from "./types";
 
 type PageNode = { delete?: (n: ReturnType<typeof PDFName.of>) => void };
 type CatalogNode = { delete?: (n: ReturnType<typeof PDFName.of>) => void };
+
+export interface ApplyRedactionOptions {
+  /** Flatten hybrid pages (text + image) to raster before burning redaction boxes. */
+  flattenBeforeRedact?: boolean;
+  hybridPageIndices?: number[];
+}
 
 function stripMetadata(doc: PDFDocument): void {
   doc.setTitle("Redacted Document");
@@ -24,11 +31,28 @@ function stripAnnotations(page: PDFPage): void {
   (page as unknown as { node: PageNode }).node?.delete?.(PDFName.of("Annots"));
 }
 
+function drawBlackBoxes(page: PDFPage, rects: RedactionRect[]): void {
+  for (const r of rects) {
+    page.drawRectangle({
+      x: r.x,
+      y: r.y,
+      width: r.width,
+      height: r.height,
+      color: rgb(0, 0, 0),
+      borderWidth: 0,
+    });
+  }
+}
+
 export async function applyRedactionsPermanent(
   pdfBytes: ArrayBuffer | Uint8Array,
   redactions: RedactionRect[],
-  numPages: number
+  numPages: number,
+  options: ApplyRedactionOptions = {}
 ): Promise<Uint8Array> {
+  const flattenBeforeRedact = options.flattenBeforeRedact ?? false;
+  const hybridPages = new Set(options.hybridPageIndices ?? []);
+
   const bytesForPdfJs = clonePdfBytes(pdfBytes);
   const bytesForPdfLib = clonePdfBytes(pdfBytes);
   const pdfjs = await getPdfJs();
@@ -49,19 +73,18 @@ export async function applyRedactionsPermanent(
     const pageRedactions = byPage.get(i) ?? [];
     if (!pageRedactions.length) continue;
 
-    const markedSpans = getSpansMarkedForRemoval(spans, i, pageRedactions);
-    await redactPageContents(pages[i], markedSpans, pageRedactions);
+    const useFlatten = flattenBeforeRedact && hybridPages.has(i);
 
-    for (const r of pageRedactions) {
-      pages[i].drawRectangle({
-        x: r.x,
-        y: r.y,
-        width: r.width,
-        height: r.height,
-        color: rgb(0, 0, 0),
-        borderWidth: 0,
-      });
+    if (useFlatten) {
+      const jsPage = await pdfDoc.getPage(i + 1);
+      await flattenPageToImage(pages[i], outDoc, jsPage);
+      drawBlackBoxes(pages[i], pageRedactions);
+    } else {
+      const markedSpans = getSpansMarkedForRemoval(spans, i, pageRedactions);
+      await redactPageContents(pages[i], markedSpans, pageRedactions);
+      drawBlackBoxes(pages[i], pageRedactions);
     }
+
     stripAnnotations(pages[i]);
   }
 
