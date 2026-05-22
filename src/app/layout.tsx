@@ -6,6 +6,7 @@ import { PrivacyBanner } from "@/components/layout/privacy-banner";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@/components/layout/analytics";
+import { JsonLd } from "@/components/layout/json-ld";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} font-sans`}>
+        <JsonLd />
         <TooltipProvider>
           <PrivacyBanner />
           <Header />
