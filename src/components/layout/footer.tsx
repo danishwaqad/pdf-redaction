@@ -30,10 +30,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid gap-10 md:grid-cols-3">
           <div>
-            <p className="text-lg font-bold text-white">RedactPDF.io</p>
-            <p className="mt-2 text-sm leading-relaxed">
-              {FOOTER_BLURB}
-            </p>
+            <p className="text-lg font-bold text-white">RedactPDF.org</p>
+            <p className="mt-2 text-sm leading-relaxed">{FOOTER_BLURB}</p>
             <p className="mt-4 text-xs text-slate-500">Site launched {LAUNCH_DATE}</p>
           </div>
           <div>
@@ -61,9 +59,23 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-10 flex flex-col gap-2 border-t border-slate-800 pt-8 text-xs text-slate-500 sm:flex-row sm:justify-between">
-          <p>© {new Date().getFullYear()} RedactPDF.io</p>
-          <p>Not legal advice · Verify redactions before sharing</p>
+
+        <div className="mt-10 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
+          <p>
+            <Link href="/privacy-policy" className="hover:text-slate-300">
+              Privacy Policy
+            </Link>
+            {" · "}
+            <Link href="/about" className="hover:text-slate-300">
+              About
+            </Link>
+            {" · "}
+            <Link href="/contact" className="hover:text-slate-300">
+              Contact
+            </Link>
+          </p>
+          <p className="mt-3">© 2026 RedactPDF.org</p>
+          <p className="mt-2 text-xs">Not legal advice · Verify redactions before sharing</p>
         </div>
       </div>
     </footer>
