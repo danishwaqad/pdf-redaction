@@ -1,66 +1,53 @@
-# RedactPDF
+# redactpdf.org - Privacy-first PDF Redactor
 
-Professional PDF redaction — draw boxes, search, detect PII, apply permanent redaction.
+> Redact PDFs 100% in your browser. No uploads. No servers. Open source.
 
-## Stack
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](https://redactpdf.org)
+[![GitHub Stars](https://img.shields.io/github/stars/danishwaqad/pdf-redaction)](https://github.com/danishwaqad/pdf-redaction/stargazers)
 
-| Layer | Technology |
-|-------|------------|
-| UI | Next.js 14, pdf.js, Zustand |
-| Redaction | FastAPI + **PyMuPDF** |
-| Preview & marks | Browser |
+**[Live Demo → redactpdf.org](https://redactpdf.org)** | **[Report Bug](https://github.com/danishwaqad/pdf-redaction/issues)** | **[Request Feature](https://github.com/danishwaqad/pdf-redaction/issues)**
 
-## Features
+---
 
-- Manual redaction boxes with undo/redo
-- Text search (regex) and PII auto-detect
-- Permanent redaction (text removed from the PDF, not only covered)
-- Scanned PDF OCR (browser Tesseract)
-- Hybrid PDF detection (Canva-style) + optional secure page mode
+## 🔒 The Problem
 
-## Local development
+Most "free" PDF redactors upload your sensitive documents to their servers:
+- Tax returns
+- Bank statements 
+- Legal contracts
+- Medical records
 
-**Terminal 1 — redaction API**
+**That's a massive privacy risk.** Once uploaded, you lose control.
 
+## ✅ Our Solution
+
+**redactpdf.org runs entirely in your browser.** 
+
+1. **Zero Uploads:** Your file never leaves your device. Open DevTools → Network → See zero requests during redaction.
+2. **Permanent Redaction:** Actually burns pixels into the PDF. Not a black overlay that can be removed.
+3. **Works Offline:** 100% client-side. Airplane mode me bhi chalega.
+4. **Open Source:** Audit the code yourself. Self-host it. MIT licensed.
+
+## 🚀 Demo
+
+![Demo GIF](https://raw.githubusercontent.com/danishwaqad/pdf-redaction/main/demo.gif)
+
+**Try it now:** Upload a PDF → Draw boxes → Download redacted file. Takes 10 seconds.
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Next.js 14, React, TailwindCSS
+- **PDF Engine:** PDF-lib + WASM for client-side manipulation
+- **Backend:** FastAPI (Python) - Optional, for advanced redaction only
+- **Deployment:** Vercel
+
+**Core redaction is 100% client-side.** Backend is only used if you enable "Smart Redaction" mode.
+
+## 📦 Self-Hosting
+
+### 1. Clone & Install
 ```bash
-npm run dev:api
-```
-
-**Terminal 2 — website**
-
-```bash
+git clone https://github.com/danishwaqad/pdf-redaction.git
+cd pdf-redaction
 npm install
-cp .env.example .env.local
-npm run dev
-```
-
-Open [http://localhost:3000/tool](http://localhost:3000/tool).
-
-`.env.local`:
-
-```env
-REDACT_API_URL=http://127.0.0.1:8000
-```
-
-## Project layout
-
-```
-backend/           FastAPI + PyMuPDF
-src/
-  app/api/redact/  Proxy to backend
-  components/pdf/  Viewer, toolbar, sidebar
-  lib/pdf/         Viewer helpers + API client
-  store/           App state
-```
-
-## Deploy
-
-See [DEPLOY.md](./DEPLOY.md) — Vercel (frontend) + Railway/Render (API).
-
-## Scripts
-
-| Command | Purpose |
-|---------|---------|
-| `npm run dev` | Next.js |
-| `npm run dev:api` | PyMuPDF API |
-| `node scripts/test-pymupdf-redact.mjs` | API smoke test (API must be running) |
