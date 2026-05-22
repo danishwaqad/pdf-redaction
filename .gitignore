@@ -15,17 +15,24 @@
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store
 *.pem
+*.log
 
 # debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
+# local env files - IMPORTANT
+.env
+.env.local
+.env.development
+.env.test
+.env.production
 .env*.local
 
 # vercel
@@ -39,3 +46,16 @@ next-env.d.ts
 backend/.venv/
 backend/**/__pycache__/
 *.pyc
+
+# API Keys & Secrets - EXTRA SAFETY
+*secret*
+*key*
+config.json
+config.js
+secrets.json
+firebase.json
+google-services.json
+
+# IDE
+.vscode/
+.idea/
