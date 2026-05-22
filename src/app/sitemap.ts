@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo";
+import { PRODUCTION_SITE_URL } from "@/lib/seo";
 import { getAllPosts } from "@/lib/blog";
 
 const staticPages: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[0]["changeFrequency"] }[] = [
@@ -18,14 +18,14 @@ const staticPages: { path: string; priority: number; changeFrequency: MetadataRo
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const staticUrls = staticPages.map(({ path, priority, changeFrequency }) => ({
-    url: `${SITE_URL}${path}`,
+    url: `${PRODUCTION_SITE_URL}${path}`,
     lastModified: now,
     changeFrequency,
     priority,
   }));
 
   const blogUrls = getAllPosts().map((p) => ({
-    url: `${SITE_URL}/blog/${p.slug}`,
+    url: `${PRODUCTION_SITE_URL}/blog/${p.slug}`,
     lastModified: new Date(p.date),
     changeFrequency: "monthly" as const,
     priority: 0.8,

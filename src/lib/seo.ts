@@ -1,13 +1,26 @@
 import type { Metadata } from "next";
 
+/** Browser/metadata base — may be localhost in local .env */
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://redactpdf.org";
+
+/** Always use for sitemap.xml & robots.txt (never localhost) */
+export const PRODUCTION_SITE_URL = "https://redactpdf.org";
+
+/** Canonical / OG base — production never uses localhost even if .env is wrong */
+export const CANONICAL_SITE_URL =
+  process.env.NODE_ENV === "production" &&
+  (!process.env.NEXT_PUBLIC_SITE_URL ||
+    /localhost|127\.0\.0\.1/i.test(process.env.NEXT_PUBLIC_SITE_URL))
+    ? PRODUCTION_SITE_URL
+    : (process.env.NEXT_PUBLIC_SITE_URL ?? PRODUCTION_SITE_URL);
+
 export const SITE_NAME = "RedactPDF";
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 
 export const defaultMetadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(CANONICAL_SITE_URL),
   title: {
     default:
       "Redact PDF Online Free - Hide Text in PDF Instantly | RedactPDF.org",
@@ -27,7 +40,7 @@ export const defaultMetadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: SITE_URL,
+    url: CANONICAL_SITE_URL,
     siteName: SITE_NAME,
     title: "Redact PDF Online Free - RedactPDF.org",
     description: "Black out sensitive text from PDF in 2 clicks. Free & secure.",
@@ -47,7 +60,7 @@ export const defaultMetadata: Metadata = {
     images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
-  alternates: { canonical: SITE_URL },
+  alternates: { canonical: CANONICAL_SITE_URL },
   ...(googleVerification
     ? { verification: { google: googleVerification } }
     : {}),
@@ -66,5 +79,5 @@ export const softwareApplicationJsonLd = {
   },
   description:
     "Free online tool to redact and black out text from PDF files securely in your browser.",
-  url: SITE_URL,
+  url: PRODUCTION_SITE_URL,
 };

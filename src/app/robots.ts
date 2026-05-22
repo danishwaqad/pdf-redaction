@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { SITE_URL } from "@/lib/seo";
+import { PRODUCTION_SITE_URL } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${PRODUCTION_SITE_URL}/sitemap.xml`,
   };
 }
