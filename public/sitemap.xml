@@ -13,28 +13,69 @@
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://redactpdf.org/privacy-policy</loc>
+    <loc>https://redactpdf.org/blog</loc>
     <lastmod>2026-05-22</lastmod>
-    <priority>0.5</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://redactpdf.org/about</loc>
     <lastmod>2026-05-22</lastmod>
-    <priority>0.5</priority>
+    <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://redactpdf.org/contact</loc>
-    <lastmod>2026-05-22</lastmod>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://redactpdf.org/faq</loc>
+    <loc>https://redactpdf.org/privacy-policy</loc>
     <lastmod>2026-05-22</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://redactpdf.org/blog</loc>
+    <loc>https://redactpdf.org/terms-of-service</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/disclaimer</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/contact</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/faq</loc>
     <lastmod>2026-05-22</lastmod>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/security</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/blog/how-to-redact-pdf-for-court</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/blog/gdpr-pdf-redaction-checklist</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/blog/adobe-acrobat-redact-vs-free-alternatives</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/blog/why-blacking-out-pdf-is-not-safe</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://redactpdf.org/blog/redact-pdf-on-iphone-guide</loc>
+    <lastmod>2026-05-22</lastmod>
+    <priority>0.8</priority>
   </url>
 </urlset>
