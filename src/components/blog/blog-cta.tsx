@@ -16,8 +16,12 @@ export function BlogCta() {
             {REDACTION_DATA_FLOW}
           </p>
         </div>
-        <Button asChild size="lg" className="shrink-0">
-          <Link href="/tool">Open RedactPDF Tool</Link>
+        <Button
+          asChild
+          size="lg"
+          className="shrink-0 bg-[#DC2626] text-white hover:bg-[#b91c1c]"
+        >
+          <Link href="/tool">Start Redacting Free →</Link>
         </Button>
       </div>
     </div>

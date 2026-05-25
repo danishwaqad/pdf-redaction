@@ -11,7 +11,7 @@ export const HERO_BADGE = "Permanent redaction · No signup · No file storage";
 export const HERO_TITLE = "Redact PDF Online — Free, No Signup";
 
 export const HERO_SUBTITLE =
-  "Mark sensitive areas in your browser, then apply permanent redaction. Text is removed from the file — not just covered.";
+  "Permanently delete sensitive text from PDF files online. Unlike black marker tools, we remove data from the file so it can't be recovered. Used for court documents, GDPR, and privacy.";
 
 export const TOOL_TAGLINE = "No ads · Mark locally · Secure apply · Permanent redaction";
 

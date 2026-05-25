@@ -7,6 +7,7 @@ import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Analytics } from "@/components/layout/analytics";
 import { JsonLd } from "@/components/layout/json-ld";
+import { MonetagPopunder } from "@/components/layout/monetag-popunder";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 const inter = Inter({
@@ -28,6 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <MonetagPopunder />
+      </head>
       <body className={`${inter.variable} font-sans`}>
         <JsonLd />
         <TooltipProvider>

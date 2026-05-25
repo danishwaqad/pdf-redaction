@@ -50,6 +50,37 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {post.title}
             </h1>
+            <div
+              style={{
+                background: "#FEF2F2",
+                border: "2px solid #DC2626",
+                padding: "20px",
+                borderRadius: "12px",
+                margin: "24px 0",
+              }}
+            >
+              <div style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px" }}>
+                🚀 Skip the Guide: Redact Your PDF Now
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                Permanently black out text in 3 clicks. No signup, no watermark, 100%
+                free.
+              </div>
+              <a
+                href="https://redactpdf.org"
+                style={{
+                  background: "#DC2626",
+                  color: "white",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  fontWeight: 600,
+                  display: "inline-block",
+                }}
+              >
+                Open RedactPDF Tool →
+              </a>
+            </div>
             <p className="mt-3 text-sm text-muted-foreground">
               {post.date} · {post.readTime}
             </p>

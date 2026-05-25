@@ -23,12 +23,12 @@ export function Hero() {
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button asChild size="lg" className="h-12 px-8 text-base shadow-md">
               <Link href="/tool">
-                Start redacting
+                Redact My PDF Free
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
-              <Link href="/about">How we&apos;re different</Link>
+              <Link href="#demo">See 10-sec Demo</Link>
             </Button>
           </div>
         </div>
