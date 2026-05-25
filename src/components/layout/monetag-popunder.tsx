@@ -39,25 +39,38 @@ export function MonetagPopunder() {
   }
 
   // Monetag Popunder - PH Launch 26 May 2026 - 1/24h frequency
-  // Note: The zone ID in the URL should be replaced with the actual zone ID provided by Monetag.
   return (
     <Script
       id="monetag-popunder"
-      src="https://groleegni.net/401/REPLACE_WITH_ZONE_ID/invoke.js"
       strategy="afterInteractive"
-      onLoad={() => {
-        try {
-          window.localStorage.setItem(
-            MONETAG_LAST_LOAD_KEY,
-            String(Date.now()),
-          );
-        } catch {
-          // Ignore storage write issues so the site keeps working.
-        }
-      }}
-      onError={() => {
-        console.warn("Monetag popunder failed to load.");
-      }}
-    />
+    >
+      {`
+        (function() {
+          try {
+            var target = [document.documentElement, document.body].filter(Boolean).pop();
+            if (!target) return;
+
+            var monetagScript = document.createElement('script');
+            monetagScript.dataset.zone = '11056161';
+            monetagScript.src = 'https://al5sm.com/tag.min.js';
+            monetagScript.async = true;
+            monetagScript.onload = function() {
+              try {
+                window.localStorage.setItem('${MONETAG_LAST_LOAD_KEY}', String(Date.now()));
+              } catch (error) {
+                console.warn('Monetag load timestamp could not be saved.', error);
+              }
+            };
+            monetagScript.onerror = function() {
+              console.warn('Monetag popunder failed to load.');
+            };
+
+            target.appendChild(monetagScript);
+          } catch (error) {
+            console.warn('Monetag popunder setup failed.', error);
+          }
+        })();
+      `}
+    </Script>
   );
 }
