@@ -39,6 +39,7 @@ export function MonetagPopunder() {
   }
 
   // Monetag Popunder - PH Launch 26 May 2026 - 1/24h frequency
+  // Note: The zone ID in the URL should be replaced with the actual zone ID provided by Monetag.
   return (
     <Script
       id="monetag-popunder"
