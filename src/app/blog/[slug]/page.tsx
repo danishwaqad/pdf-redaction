@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
-import { getAllPostSlugs, getPostBySlug } from "@/lib/blog";
+import { getAllPostSlugs, getPostBySlug, resolveBlogSlug } from "@/lib/blog";
 import { useMDXComponents } from "@/mdx-components";
 import { BlogCta } from "@/components/blog/blog-cta";
 import { FaqSchema } from "@/components/blog/faq-schema";
@@ -18,7 +18,7 @@ export function generateMetadata({
 }: {
   params: { slug: string };
 }): Metadata {
-  const post = getPostBySlug(params.slug);
+  const post = getPostBySlug(resolveBlogSlug(params.slug));
   if (!post) return {};
   return {
     title: post.title,
@@ -33,7 +33,12 @@ export function generateMetadata({
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = getPostBySlug(params.slug);
+  const canonicalSlug = resolveBlogSlug(params.slug);
+  if (canonicalSlug !== params.slug) {
+    permanentRedirect(`/blog/${canonicalSlug}`);
+  }
+
+  const post = getPostBySlug(canonicalSlug);
   if (!post) notFound();
 
   const components = useMDXComponents({});

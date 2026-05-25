@@ -3,6 +3,9 @@ import path from "path";
 import matter from "gray-matter";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
+const BLOG_ALIASES: Record<string, string> = {
+  "how-to-redact-a-pdf-on-iphone-ipad": "redact-pdf-on-iphone-guide",
+};
 
 export interface BlogFaq {
   question: string;
@@ -23,6 +26,10 @@ export interface BlogPostMeta extends BlogFrontmatter {
 
 export interface BlogPost extends BlogPostMeta {
   content: string;
+}
+
+export function resolveBlogSlug(slug: string): string {
+  return BLOG_ALIASES[slug] ?? slug;
 }
 
 export function getAllPostSlugs(): string[] {
@@ -47,12 +54,13 @@ export function getAllPosts(): BlogPostMeta[] {
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {
-  const filePath = path.join(BLOG_DIR, `${slug}.mdx`);
+  const resolvedSlug = resolveBlogSlug(slug);
+  const filePath = path.join(BLOG_DIR, `${resolvedSlug}.mdx`);
   if (!fs.existsSync(filePath)) return null;
   const raw = fs.readFileSync(filePath, "utf8");
   const { data, content } = matter(raw);
   return {
-    slug,
+    slug: resolvedSlug,
     title: data.title as string,
     description: data.description as string,
     date: data.date as string,
