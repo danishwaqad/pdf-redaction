@@ -18,7 +18,10 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   ...defaultMetadata,
-  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+  icons: {
+    icon: [{ url: "/favicon.png", type: "image/png" }, { url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: "/favicon.png",
+  },
   manifest: "/site.webmanifest",
 };
 
