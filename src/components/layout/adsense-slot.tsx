@@ -1,6 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  ADS_DISABLED_BY_BUILD,
+  areAdsDisabledForHostname,
+  logAdsDisabledInDev,
+} from "@/lib/ad-guards";
 import { cn } from "@/lib/utils";
 
 declare global {
@@ -24,13 +29,33 @@ export function AdSenseSlot({
   variant = "sidebar",
   position = "right",
 }: AdSenseSlotProps) {
+  const [adsAllowed, setAdsAllowed] = useState(false);
   const id = variant === "sidebar" ? `adsense-sidebar-${position}` : "adsense-mobile-banner";
   const clientId = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
   const slotId =
     variant === "sidebar"
       ? process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR
       : process.env.NEXT_PUBLIC_ADSENSE_SLOT_BANNER;
-  const showLiveAd = Boolean(clientId && slotId);
+  const hasAdConfig = Boolean(clientId && slotId);
+  const showLiveAd = hasAdConfig && adsAllowed;
+
+  useEffect(() => {
+    if (!hasAdConfig) return;
+
+    if (ADS_DISABLED_BY_BUILD) {
+      logAdsDisabledInDev();
+      setAdsAllowed(false);
+      return;
+    }
+
+    if (areAdsDisabledForHostname(window.location.hostname)) {
+      logAdsDisabledInDev();
+      setAdsAllowed(false);
+      return;
+    }
+
+    setAdsAllowed(true);
+  }, [hasAdConfig]);
 
   useEffect(() => {
     if (!showLiveAd) return;

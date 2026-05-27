@@ -19,7 +19,7 @@ const resourceLinks = [
   { href: "/security", label: "Security" },
 ];
 
-const LAUNCH_DATE = "April 28, 2026";
+const LAUNCH_DATE = "May 21, 2026";
 
 export function Footer() {
   const pathname = usePathname();

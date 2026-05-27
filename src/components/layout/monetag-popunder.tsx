@@ -1,8 +1,16 @@
+/*
+Previous Monetag implementation intentionally kept commented out.
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
+import {
+  ADS_DISABLED_BY_BUILD,
+  areAdsDisabledForHostname,
+  logAdsDisabledInDev,
+} from "@/lib/ad-guards";
 
 const MONETAG_LAST_LOAD_KEY = "monetag-popunder-last-load";
 const MONETAG_LOAD_INTERVAL_MS = 24 * 60 * 60 * 1000;
@@ -17,7 +25,23 @@ export function MonetagPopunder() {
   }, []);
 
   useEffect(() => {
-    if (!isClient || pathname !== "/") {
+    if (!isClient) {
+      return;
+    }
+
+    if (ADS_DISABLED_BY_BUILD) {
+      logAdsDisabledInDev();
+      setShouldLoad(false);
+      return;
+    }
+
+    if (areAdsDisabledForHostname(window.location.hostname)) {
+      logAdsDisabledInDev();
+      setShouldLoad(false);
+      return;
+    }
+
+    if (pathname !== "/") {
       setShouldLoad(false);
       return;
     }
@@ -29,7 +53,6 @@ export function MonetagPopunder() {
 
       setShouldLoad(isExpired);
     } catch {
-      // If storage is unavailable, still allow the script to load once.
       setShouldLoad(true);
     }
   }, [isClient, pathname]);
@@ -38,12 +61,8 @@ export function MonetagPopunder() {
     return null;
   }
 
-  // Monetag Popunder - PH Launch 26 May 2026 - 1/24h frequency
   return (
-    <Script
-      id="monetag-popunder"
-      strategy="afterInteractive"
-    >
+    <Script id="monetag-popunder" strategy="afterInteractive">
       {`
         (function() {
           try {
@@ -73,4 +92,9 @@ export function MonetagPopunder() {
       `}
     </Script>
   );
+}
+*/
+
+export function MonetagPopunder() {
+  return null;
 }
