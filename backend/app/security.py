@@ -15,9 +15,18 @@ def _configured_api_key() -> str:
     return os.getenv("REDACT_API_KEY", "").strip()
 
 
+def _is_railway_deploy() -> bool:
+    return bool(os.getenv("RAILWAY_ENVIRONMENT_NAME") or os.getenv("RAILWAY_PUBLIC_DOMAIN"))
+
+
 def require_api_key(request: Request) -> None:
     expected = _configured_api_key()
     if not expected:
+        if _is_railway_deploy():
+            raise HTTPException(
+                status_code=503,
+                detail="REDACT_API_KEY is not set on Railway. Add it in Variables and redeploy.",
+            )
         return
     provided = request.headers.get(API_KEY_HEADER, "").strip()
     if not provided or not secrets.compare_digest(provided, expected):
