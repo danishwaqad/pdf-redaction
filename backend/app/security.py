@@ -19,15 +19,33 @@ def _is_railway_deploy() -> bool:
     return bool(os.getenv("RAILWAY_ENVIRONMENT_NAME") or os.getenv("RAILWAY_PUBLIC_DOMAIN"))
 
 
+def _api_key_required() -> bool:
+    force = os.getenv("REQUIRE_API_KEY", "").strip().lower()
+    if force in ("1", "true", "yes"):
+        return True
+    return _is_railway_deploy()
+
+
+def auth_status() -> dict[str, bool]:
+    return {
+        "api_key_configured": bool(_configured_api_key()),
+        "api_key_required": _api_key_required(),
+        "on_railway": _is_railway_deploy(),
+    }
+
+
 def require_api_key(request: Request) -> None:
     expected = _configured_api_key()
+    required = _api_key_required()
+
+    if required and not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="REDACT_API_KEY is not set. Add it in Railway Variables and redeploy.",
+        )
     if not expected:
-        if _is_railway_deploy():
-            raise HTTPException(
-                status_code=503,
-                detail="REDACT_API_KEY is not set on Railway. Add it in Variables and redeploy.",
-            )
         return
+
     provided = request.headers.get(API_KEY_HEADER, "").strip()
     if not provided or not secrets.compare_digest(provided, expected):
         raise HTTPException(status_code=401, detail="Unauthorized")

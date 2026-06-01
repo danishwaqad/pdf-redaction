@@ -108,6 +108,13 @@ Write-Host "  $health"
 if ($health -notmatch '"status"\s*:\s*"ok"') {
     Write-Host "WARNING: Health did not return ok. Fix Railway deploy first." -ForegroundColor Yellow
 }
+if ($health -match '"api_key_configured"\s*:\s*false') {
+    Write-Host "WARNING: REDACT_API_KEY is NOT loaded in this Railway container." -ForegroundColor Red
+    Write-Host "  Fix: Railway -> Variables -> REDACT_API_KEY -> Redeploy" -ForegroundColor Yellow
+}
+if ($health -notmatch '"api_key_configured"') {
+    Write-Host "WARNING: Old backend deployed (no auth fields on /health). Push latest code + Redeploy." -ForegroundColor Red
+}
 
 # --- Test A: no API key (expect 401 if REDACT_API_KEY is set on Railway) ---
 Write-TestHeader "Test 1 - No API key (expect 401)"

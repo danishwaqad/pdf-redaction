@@ -26,7 +26,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
 from app.redact_engine import apply_redactions_pymupdf
-from app.security import require_api_key, validate_pdf_bytes
+from app.security import auth_status, require_api_key, validate_pdf_bytes
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ app.add_middleware(
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "engine": "pymupdf"}
+    return {"status": "ok", "engine": "pymupdf", **auth_status()}
 
 
 @app.post("/redact")

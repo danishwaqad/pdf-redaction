@@ -32,6 +32,7 @@ Dockerfile wala route **preferred** (PyMuPDF stable).
 |-----|--------|------|
 | `CORS_ORIGINS` | `https://YOUR-APP.vercel.app` | Vercel deploy ke baad exact URL; comma se multiple |
 | `REDACT_API_KEY` | long random secret | **Same value** Vercel par bhi; `openssl rand -hex 32` |
+| `REQUIRE_API_KEY` | `true` | Optional but recommended — forces auth even if Railway env detection fails |
 | `PORT` | **mat add karo** | Railway khud set karta hai |
 
 Example:
