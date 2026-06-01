@@ -46,9 +46,12 @@ app.add_middleware(
 )
 
 
+API_BUILD_ID = "auth-v2"
+
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "engine": "pymupdf", **auth_status()}
+    return {"status": "ok", "engine": "pymupdf", "build": API_BUILD_ID, **auth_status()}
 
 
 @app.post("/redact")
