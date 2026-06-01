@@ -1,3 +1,4 @@
+# Railway: Settings → Root Directory = backend, branch = main
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
