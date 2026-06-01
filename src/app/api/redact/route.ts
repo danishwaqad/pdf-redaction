@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 
+import { isPdfMagicBytes, MAX_PDF_BYTES } from "@/lib/pdf/limits";
+
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 const API_URL = process.env.REDACT_API_URL ?? "http://127.0.0.1:8000";
+const API_KEY = process.env.REDACT_API_KEY?.trim() ?? "";
+const API_KEY_HEADER = "x-redact-api-key";
 
 export async function POST(req: Request) {
   let form: FormData;
@@ -22,17 +26,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing redactions JSON" }, { status: 400 });
   }
 
+  if (file.size > MAX_PDF_BYTES) {
+    return NextResponse.json({ error: "File exceeds 100MB limit." }, { status: 413 });
+  }
+
+  const headerBytes = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+  if (!isPdfMagicBytes(headerBytes)) {
+    return NextResponse.json({ error: "Invalid PDF file" }, { status: 400 });
+  }
+
   const upstream = new FormData();
   upstream.append("file", file, "document.pdf");
   upstream.append("redactions", redactions);
   const options = form.get("options");
   upstream.append("options", typeof options === "string" ? options : "{}");
 
+  const headers: HeadersInit = {};
+  if (API_KEY) {
+    headers[API_KEY_HEADER] = API_KEY;
+  }
+
   let res: Response;
   try {
     res = await fetch(`${API_URL}/redact`, {
       method: "POST",
       body: upstream,
+      headers,
       signal: AbortSignal.timeout(120_000),
     });
   } catch {

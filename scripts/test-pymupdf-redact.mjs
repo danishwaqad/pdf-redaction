@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const fixture = path.join(__dirname, "..", "fixtures", "basic-text.pdf");
 const api = process.env.REDACT_API_URL ?? "http://127.0.0.1:8000";
+const apiKey = process.env.REDACT_API_KEY?.trim() ?? "";
 
 const health = await fetch(`${api}/health`);
 if (!health.ok) {
@@ -26,7 +27,8 @@ form.append(
 );
 form.append("options", "{}");
 
-const res = await fetch(`${api}/redact`, { method: "POST", body: form });
+const headers = apiKey ? { "x-redact-api-key": apiKey } : {};
+const res = await fetch(`${api}/redact`, { method: "POST", body: form, headers });
 if (!res.ok) {
   console.error("redact failed", res.status, await res.text());
   process.exit(1);

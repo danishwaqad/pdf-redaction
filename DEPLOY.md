@@ -33,6 +33,7 @@ git push origin main
    | Variable | Example |
    |----------|---------|
    | `CORS_ORIGINS` | `https://your-app.vercel.app,https://redactpdf.io` |
+   | `REDACT_API_KEY` | long random secret (`openssl rand -hex 32`) |
    | `PORT` | Railway auto-set karta hai — mat chhedo |
 
 6. **Settings** → **Networking** → **Generate Domain**  
@@ -62,6 +63,7 @@ git push origin main
    | Name | Value |
    |------|--------|
    | `REDACT_API_URL` | `https://YOUR-RAILWAY-URL` (no trailing slash) |
+   | `REDACT_API_KEY` | same secret as Railway |
    | `NEXT_PUBLIC_SITE_URL` | `https://your-app.vercel.app` |
    | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | optional analytics |
 

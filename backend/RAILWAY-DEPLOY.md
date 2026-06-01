@@ -31,6 +31,7 @@ Dockerfile wala route **preferred** (PyMuPDF stable).
 | Key | Value | Note |
 |-----|--------|------|
 | `CORS_ORIGINS` | `https://YOUR-APP.vercel.app` | Vercel deploy ke baad exact URL; comma se multiple |
+| `REDACT_API_KEY` | long random secret | **Same value** Vercel par bhi; `openssl rand -hex 32` |
 | `PORT` | **mat add karo** | Railway khud set karta hai |
 
 Example:
@@ -56,6 +57,7 @@ Expected:
 | Key | Value |
 |-----|--------|
 | `REDACT_API_URL` | `https://YOUR-URL.up.railway.app` *(no trailing `/`)* |
+| `REDACT_API_KEY` | *(Railway wala same secret)* | Bina iske live redact 401 dega |
 
 Vercel redeploy → phir Railway par `CORS_ORIGINS` mein wahi Vercel URL → Railway **Redeploy**.
 

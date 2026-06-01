@@ -2,6 +2,8 @@
 
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
+import { MAX_PDF_BYTES } from "./limits";
+
 type PdfJsModule = typeof import("pdfjs-dist/legacy/build/pdf.mjs");
 
 let pdfjsModule: PdfJsModule | null = null;
@@ -48,7 +50,7 @@ export function formatPdfLoadError(err: unknown): string {
   return "Failed to load PDF. The file may be corrupted or encrypted.";
 }
 
-export const MAX_FILE_SIZE = 100 * 1024 * 1024;
+export const MAX_FILE_SIZE = MAX_PDF_BYTES;
 
 export function validatePdfFile(file: File): string | null {
   if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
