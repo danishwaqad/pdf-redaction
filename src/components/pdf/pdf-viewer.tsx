@@ -31,11 +31,10 @@ export function PdfViewer() {
 
   const containerRef = useRef<HTMLDivElement>(null);
   const pageRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const visibilityRatios = useRef(new Map<number, number>());
   const [pageWidthAt1, setPageWidthAt1] = useState(0);
-  const [pageHeightAt1, setPageHeightAt1] = useState(0);
   const [fitScale, setFitScale] = useState(1);
   const isMobile = useIsMobile();
-  const RENDER_WINDOW = 2;
 
   const renderScale = isMobile && pageWidthAt1 > 0 ? fitScale * scale : scale;
 
@@ -44,9 +43,7 @@ export function PdfViewer() {
     let cancelled = false;
     pdfDoc.getPage(1).then((page) => {
       if (!cancelled) {
-        const viewport = page.getViewport({ scale: 1 });
-        setPageWidthAt1(viewport.width);
-        setPageHeightAt1(viewport.height);
+        setPageWidthAt1(page.getViewport({ scale: 1 }).width);
       }
     });
     return () => {
@@ -79,12 +76,10 @@ export function PdfViewer() {
     clearScrollTarget();
   }, [scrollTargetPage, clearScrollTarget]);
 
-  const visibilityRatios = useRef(new Map<number, number>());
   useEffect(() => {
     const root = containerRef.current;
     if (!root || !numPages) return;
 
-    visibilityRatios.current.clear();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -92,7 +87,7 @@ export function PdfViewer() {
           if (Number.isNaN(idx)) continue;
           visibilityRatios.current.set(idx, entry.intersectionRatio);
         }
-        let bestPage = currentPage;
+        let bestPage = 0;
         let bestRatio = 0;
         visibilityRatios.current.forEach((ratio, idx) => {
           if (ratio > bestRatio) {
@@ -100,22 +95,30 @@ export function PdfViewer() {
             bestPage = idx;
           }
         });
-        if (bestRatio > 0.2 && bestPage !== currentPage) {
-          setCurrentPage(bestPage);
+        if (bestRatio > 0.15) {
+          setCurrentPage((prev) => (prev === bestPage ? prev : bestPage));
         }
       },
-      { root, threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
+      { root, threshold: [0, 0.15, 0.35, 0.55, 0.75, 1] }
     );
 
-    for (const el of pageRefs.current) {
-      if (el) observer.observe(el);
-    }
+    const observeAll = () => {
+      for (let i = 0; i < numPages; i++) {
+        const el = pageRefs.current[i];
+        if (el) observer.observe(el);
+      }
+    };
 
-    return () => observer.disconnect();
-  }, [numPages, currentPage, setCurrentPage]);
+    observeAll();
+    const t = window.setTimeout(observeAll, 100);
+
+    return () => {
+      window.clearTimeout(t);
+      observer.disconnect();
+    };
+  }, [numPages, setCurrentPage]);
 
   if (!pdfDoc) return null;
-  const estimatedPageHeight = Math.max(120, Math.round(pageHeightAt1 * renderScale));
 
   return (
     <div
@@ -123,41 +126,21 @@ export function PdfViewer() {
       className="flex min-h-0 w-full flex-1 flex-col overflow-x-hidden overflow-y-auto bg-slate-100 p-2 sm:p-4"
     >
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-4">
-        {Array.from({ length: numPages }, (_, pageIndex) => {
-          const isNearCurrent = Math.abs(pageIndex - currentPage) <= RENDER_WINDOW;
-          if (isNearCurrent) {
-            return (
-              <PdfPageView
-                key={pageIndex}
-                ref={(el) => {
-                  pageRefs.current[pageIndex] = el;
-                }}
-                pdfDoc={pdfDoc}
-                pageIndex={pageIndex}
-                renderScale={renderScale}
-                redactions={redactions.filter((r) => r.pageIndex === pageIndex)}
-                canRedact={canRedactFn()}
-                onAddRedaction={(rect) => addRedaction({ ...rect, pageIndex })}
-              />
-            );
-          }
-
-          return (
-            <div
-              key={pageIndex}
-              ref={(el) => {
-                pageRefs.current[pageIndex] = el;
-              }}
-              data-page-index={pageIndex}
-              className="relative w-full scroll-mt-2 rounded-md border bg-white/30"
-              style={{ minHeight: estimatedPageHeight }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-                Page {pageIndex + 1}
-              </div>
-            </div>
-          );
-        })}
+        {Array.from({ length: numPages }, (_, pageIndex) => (
+          <PdfPageView
+            key={pageIndex}
+            ref={(el) => {
+              pageRefs.current[pageIndex] = el;
+            }}
+            pdfDoc={pdfDoc}
+            pageIndex={pageIndex}
+            renderScale={renderScale}
+            redactions={redactions.filter((r) => r.pageIndex === pageIndex)}
+            canRedact={canRedactFn()}
+            scrollRoot={containerRef}
+            onAddRedaction={(rect) => addRedaction({ ...rect, pageIndex })}
+          />
+        ))}
       </div>
       {drawHint && (
         <p className="mt-2 shrink-0 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-center text-xs text-amber-900">

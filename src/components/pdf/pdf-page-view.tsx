@@ -33,6 +33,7 @@ type PdfPageViewProps = {
   redactions: RedactionRect[];
   canRedact: boolean;
   onAddRedaction: (rect: Omit<RedactionRect, "id" | "pageIndex">) => void;
+  scrollRoot: React.RefObject<HTMLElement | null>;
 };
 
 function mergeRefs<T>(...refs: (Ref<T> | undefined)[]) {
@@ -50,7 +51,15 @@ function mergeRefs<T>(...refs: (Ref<T> | undefined)[]) {
 
 export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
   function PdfPageView(
-    { pdfDoc, pageIndex, renderScale, redactions, canRedact, onAddRedaction },
+    {
+      pdfDoc,
+      pageIndex,
+      renderScale,
+      redactions,
+      canRedact,
+      onAddRedaction,
+      scrollRoot,
+    },
     ref
   ) {
     const rootRef = useRef<HTMLDivElement>(null);
@@ -59,6 +68,7 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     const renderGenRef = useRef(0);
     const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
 
+    const [isVisible, setIsVisible] = useState(false);
     const [pageSize, setPageSize] = useState({
       width: 0,
       height: 0,
@@ -67,6 +77,22 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     });
     const [drawing, setDrawing] = useState<DrawState | null>(null);
     const [placeholderHeight, setPlaceholderHeight] = useState(842 * renderScale);
+    const [renderError, setRenderError] = useState(false);
+
+    useEffect(() => {
+      const root = scrollRoot.current;
+      const el = rootRef.current;
+      if (!root || !el) return;
+
+      const io = new IntersectionObserver(
+        ([entry]) => {
+          setIsVisible(entry.isIntersecting);
+        },
+        { root, rootMargin: "800px 0px", threshold: 0 }
+      );
+      io.observe(el);
+      return () => io.disconnect();
+    }, [scrollRoot]);
 
     useEffect(() => {
       let cancelled = false;
@@ -81,47 +107,59 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     }, [pdfDoc, pageIndex, renderScale]);
 
     const renderPage = useCallback(async () => {
-      if (!canvasRef.current || renderScale <= 0) return;
+      if (!isVisible || !canvasRef.current || renderScale <= 0) return;
 
       const gen = ++renderGenRef.current;
       renderTaskRef.current?.cancel();
+      setRenderError(false);
 
-      const page = await pdfDoc.getPage(pageIndex + 1);
-      if (gen !== renderGenRef.current) return;
+      try {
+        const page = await pdfDoc.getPage(pageIndex + 1);
+        if (gen !== renderGenRef.current) return;
 
-      const viewport = page.getViewport({ scale: renderScale });
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+        const viewport = page.getViewport({ scale: renderScale });
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
 
-      const w = Math.floor(viewport.width);
-      const h = Math.floor(viewport.height);
-      canvas.width = w;
-      canvas.height = h;
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
+        const w = Math.floor(viewport.width);
+        const h = Math.floor(viewport.height);
+        canvas.width = w;
+        canvas.height = h;
+        canvas.style.width = `${w}px`;
+        canvas.style.height = `${h}px`;
 
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, w, h);
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, w, h);
 
-      setPageSize({
-        width: w,
-        height: h,
-        pdfHeight: h / renderScale,
-        transform: viewportTransformFromPdfJs(viewport.transform),
-      });
+        setPageSize({
+          width: w,
+          height: h,
+          pdfHeight: h / renderScale,
+          transform: viewportTransformFromPdfJs(viewport.transform),
+        });
 
-      const task = page.render({ canvasContext: ctx, viewport, canvas });
-      renderTaskRef.current = task;
-      await task.promise.catch(() => undefined);
-    }, [pdfDoc, pageIndex, renderScale]);
+        const task = page.render({ canvasContext: ctx, viewport, canvas });
+        renderTaskRef.current = task;
+        await task.promise;
+      } catch (e) {
+        if (gen === renderGenRef.current) {
+          console.error(`Page ${pageIndex + 1} render failed`, e);
+          setRenderError(true);
+        }
+      }
+    }, [pdfDoc, pageIndex, renderScale, isVisible]);
 
     useEffect(() => {
-      renderPage();
+      if (isVisible) {
+        void renderPage();
+      } else {
+        renderTaskRef.current?.cancel();
+      }
       return () => {
         renderTaskRef.current?.cancel();
       };
-    }, [renderPage]);
+    }, [renderPage, isVisible]);
 
     const getOverlayPoint = (clientX: number, clientY: number) => {
       const el = overlayRef.current;
@@ -173,7 +211,7 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
         }
       : null;
 
-    const showPage = pageSize.width > 0 && pageSize.height > 0;
+    const showPage = isVisible && pageSize.width > 0 && pageSize.height > 0;
 
     return (
       <div
@@ -188,7 +226,6 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
             width: showPage ? pageSize.width : "100%",
             maxWidth: showPage ? pageSize.width : undefined,
             height: showPage ? pageSize.height : placeholderHeight,
-            visibility: showPage ? "visible" : "hidden",
           }}
         >
           <canvas ref={canvasRef} className="block w-full bg-white" />
@@ -200,14 +237,14 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
               height: showPage ? pageSize.height : 0,
             }}
             onMouseDown={(e) => {
-              if (e.button !== 0 || !canRedact) return;
+              if (e.button !== 0 || !canRedact || !showPage) return;
               startDraw(e.clientX, e.clientY);
             }}
             onMouseMove={(e) => moveDraw(e.clientX, e.clientY)}
             onMouseUp={finishDraw}
             onMouseLeave={finishDraw}
             onTouchStart={(e) => {
-              if (e.touches.length !== 1 || !canRedact) return;
+              if (e.touches.length !== 1 || !canRedact || !showPage) return;
               startDraw(e.touches[0].clientX, e.touches[0].clientY);
             }}
             onTouchMove={(e) => {
@@ -236,8 +273,18 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
           </div>
         </div>
         {!showPage && (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
-            Page {pageIndex + 1}…
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white text-xs text-muted-foreground">
+            {renderError ? (
+              <button
+                type="button"
+                className="pointer-events-auto rounded border px-2 py-1 text-foreground hover:bg-muted"
+                onClick={() => void renderPage()}
+              >
+                Page {pageIndex + 1} — retry load
+              </button>
+            ) : (
+              <span>Page {pageIndex + 1}…</span>
+            )}
           </div>
         )}
       </div>
