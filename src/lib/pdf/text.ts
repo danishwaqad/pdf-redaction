@@ -116,11 +116,11 @@ export function searchTextSpans(
   const rects: RedactionRect[] = [];
   const byPage = groupSpansByPage(spans);
 
-  for (const [pageIndex, pageSpans] of byPage) {
+  byPage.forEach((pageSpans, pageIndex) => {
     for (const rect of findMatchesOnPage(pageIndex, pageSpans, regex)) {
       rects.push({ ...rect, id: generateId() });
     }
-  }
+  });
 
   return rects;
 }
@@ -135,9 +135,9 @@ export function countSearchMatches(
 
   let total = 0;
   const byPage = groupSpansByPage(spans);
-  for (const [, pageSpans] of byPage) {
+  byPage.forEach((pageSpans) => {
     const { text } = buildPageTextModel(pageSpans);
-    if (!text) continue;
+    if (!text) return;
     const flags = regex.flags.includes("g") ? regex.flags : `${regex.flags}g`;
     const re = new RegExp(regex.source, flags);
     let m: RegExpExecArray | null;
@@ -148,7 +148,7 @@ export function countSearchMatches(
       }
       total++;
     }
-  }
+  });
   return total;
 }
 
@@ -199,9 +199,9 @@ export function detectPatterns(
 
   const byPage = groupSpansByPage(spans);
 
-  for (const [pageIndex, pageSpans] of byPage) {
+  byPage.forEach((pageSpans, pageIndex) => {
     const { text, refs } = buildPageTextModel(pageSpans);
-    if (!text) continue;
+    if (!text) return;
 
     for (const key of keys) {
       const regex = PATTERNS[key];
@@ -240,7 +240,7 @@ export function detectPatterns(
         }
       }
     }
-  }
+  });
   return { rects, counts };
 }
 

@@ -79,12 +79,12 @@ export function PdfViewer() {
       visibilityRatios.current.set(pageIndex, ratio);
       let bestPage = currentPage;
       let bestRatio = 0;
-      for (const [idx, r] of visibilityRatios.current) {
+      visibilityRatios.current.forEach((r, idx) => {
         if (r > bestRatio) {
           bestRatio = r;
           bestPage = idx;
         }
-      }
+      });
       if (bestRatio > 0.2 && bestPage !== currentPage) {
         setCurrentPage(bestPage);
       }
