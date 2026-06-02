@@ -95,8 +95,8 @@ export function PdfViewer() {
             bestPage = idx;
           }
         });
-        if (bestRatio > 0.15) {
-          setCurrentPage((prev) => (prev === bestPage ? prev : bestPage));
+        if (bestRatio > 0.15 && useRedactionStore.getState().currentPage !== bestPage) {
+          setCurrentPage(bestPage);
         }
       },
       { root, threshold: [0, 0.15, 0.35, 0.55, 0.75, 1] }
