@@ -8,6 +8,10 @@ import secrets
 from fastapi import HTTPException, Request
 
 MAX_PDF_BYTES = 100 * 1024 * 1024
+# Starlette 0.40+ defaults to 1 MB per multipart part; PDF + redactions JSON need more.
+MAX_MULTIPART_PART_BYTES = int(
+    os.getenv("MAX_MULTIPART_PART_BYTES", str(MAX_PDF_BYTES))
+)
 API_KEY_HEADER = "x-redact-api-key"
 
 

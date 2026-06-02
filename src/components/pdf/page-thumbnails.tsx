@@ -15,39 +15,51 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
   const goToPage = useRedactionStore((s) => s.goToPage);
   const redactions = useRedactionStore((s) => s.redactions);
 
-  const [thumbs, setThumbs] = useState<string[]>([]);
+  const [thumbs, setThumbs] = useState<Record<number, string>>({});
+
+  useEffect(() => {
+    setThumbs({});
+  }, [pdfDoc]);
 
   useEffect(() => {
     if (!pdfDoc) return;
     let cancelled = false;
 
     (async () => {
-      const urls: string[] = [];
-      for (let i = 1; i <= pdfDoc.numPages; i++) {
+      const preload = new Set<number>();
+      for (let i = 0; i < Math.min(numPages, 10); i++) preload.add(i);
+      for (let i = Math.max(0, currentPage - 8); i <= Math.min(numPages - 1, currentPage + 8); i++) {
+        preload.add(i);
+      }
+
+      const existing = new Set(Object.keys(thumbs).map((x) => Number(x)));
+      for (const idx of preload) {
         if (cancelled) break;
-        const page = await pdfDoc.getPage(i);
-        const viewport = page.getViewport({ scale: 0.2 });
+        if (existing.has(idx)) continue;
+        const page = await pdfDoc.getPage(idx + 1);
+        const viewport = page.getViewport({ scale: 0.14 });
         const canvas = document.createElement("canvas");
         canvas.width = viewport.width;
         canvas.height = viewport.height;
         const ctx = canvas.getContext("2d");
         if (ctx) {
           await page.render({ canvasContext: ctx, viewport, canvas }).promise;
-          urls.push(canvas.toDataURL("image/jpeg", 0.7));
+          const url = canvas.toDataURL("image/jpeg", 0.6);
+          if (cancelled) break;
+          setThumbs((prev) => ({ ...prev, [idx]: url }));
         }
       }
-      if (!cancelled) setThumbs(urls);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [pdfDoc, numPages]);
+  }, [pdfDoc, numPages, currentPage, thumbs]);
 
   const countOnPage = (idx: number) =>
     redactions.filter((r) => r.pageIndex === idx).length;
 
-  const thumbButton = (src: string, idx: number) => (
+  const thumbButton = (idx: number) => (
     <button
       key={idx}
       type="button"
@@ -58,8 +70,14 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
         currentPage === idx ? "border-brand shadow-sm" : "border-transparent"
       )}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={`Page ${idx + 1}`} className="block w-full" />
+      {thumbs[idx] ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={thumbs[idx]} alt={`Page ${idx + 1}`} className="block w-full" />
+      ) : (
+        <div className="flex aspect-[3/4] w-full items-center justify-center bg-slate-100 text-[10px] text-muted-foreground">
+          Loading...
+        </div>
+      )}
       <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1 py-0.5 text-center text-[10px] text-white">
         {idx + 1}
         {countOnPage(idx) > 0 && (
@@ -72,7 +90,7 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
   if (orientation === "horizontal") {
     return (
       <div className="flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]">
-        {thumbs.map((src, idx) => thumbButton(src, idx))}
+        {Array.from({ length: numPages }, (_, idx) => thumbButton(idx))}
       </div>
     );
   }
@@ -83,7 +101,9 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
         Pages ({numPages})
       </div>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
-        <div className="space-y-2 pb-2">{thumbs.map((src, idx) => thumbButton(src, idx))}</div>
+        <div className="space-y-2 pb-2">
+          {Array.from({ length: numPages }, (_, idx) => thumbButton(idx))}
+        </div>
       </div>
     </div>
   );

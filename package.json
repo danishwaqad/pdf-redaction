@@ -6,6 +6,7 @@
     "dev": "next dev",
     "dev:api": "cd backend && py -3 -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
     "dev:clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && next dev",
+    "dev:all": "node -e \"console.log('Run in two terminals: npm run dev:api  &&  npm run dev:clean')\"",
     "build": "next build",
     "build:clean": "node -e \"require('fs').rmSync('.next',{recursive:true,force:true})\" && next build",
     "start": "next start",

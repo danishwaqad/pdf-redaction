@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRedactionStore } from "@/store/redaction-store";
+import { isDirectRedactAvailable } from "@/lib/pdf/redact-config";
 import {
   applyRedactionsViaApi,
   buildRedactionCertificate,
@@ -50,6 +51,7 @@ export function RedactionToolbar() {
 
   const showOcrBanner = isOcrRunning || (!currentPageHasText && !ocrCompleted && !isHybridPdf);
   const usedSecure = flattenBeforeRedact && isHybridPdf;
+  const redactApiReady = isDirectRedactAvailable();
 
   const handleApply = async () => {
     if (!pdfBytes || !redactions.length) return;
@@ -183,7 +185,12 @@ export function RedactionToolbar() {
           variant="destructive"
           size="sm"
           className="h-9 min-w-0 flex-1 gap-1.5 sm:ml-auto sm:flex-initial"
-          disabled={!redactions.length || isApplying || !pdfBytes}
+          disabled={!redactions.length || isApplying || !pdfBytes || !redactApiReady}
+          title={
+            redactApiReady
+              ? undefined
+              : "Set REDACT_API_URL on Vercel (or run npm run dev:api locally)"
+          }
           onClick={handleApply}
         >
           {isApplying && <Loader2 className="h-4 w-4 animate-spin" />}

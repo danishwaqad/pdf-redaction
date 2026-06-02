@@ -33,8 +33,6 @@ type PdfPageViewProps = {
   redactions: RedactionRect[];
   canRedact: boolean;
   onAddRedaction: (rect: Omit<RedactionRect, "id" | "pageIndex">) => void;
-  scrollRoot: React.RefObject<HTMLElement | null>;
-  onVisibilityChange?: (pageIndex: number, ratio: number) => void;
 };
 
 function mergeRefs<T>(...refs: (Ref<T> | undefined)[]) {
@@ -52,16 +50,7 @@ function mergeRefs<T>(...refs: (Ref<T> | undefined)[]) {
 
 export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
   function PdfPageView(
-    {
-      pdfDoc,
-      pageIndex,
-      renderScale,
-      redactions,
-      canRedact,
-      onAddRedaction,
-      scrollRoot,
-      onVisibilityChange,
-    },
+    { pdfDoc, pageIndex, renderScale, redactions, canRedact, onAddRedaction },
     ref
   ) {
     const rootRef = useRef<HTMLDivElement>(null);
@@ -70,7 +59,6 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     const renderGenRef = useRef(0);
     const renderTaskRef = useRef<{ cancel: () => void } | null>(null);
 
-    const [shouldRender, setShouldRender] = useState(false);
     const [pageSize, setPageSize] = useState({
       width: 0,
       height: 0,
@@ -79,22 +67,6 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     });
     const [drawing, setDrawing] = useState<DrawState | null>(null);
     const [placeholderHeight, setPlaceholderHeight] = useState(842 * renderScale);
-
-    useEffect(() => {
-      const root = scrollRoot.current;
-      const el = rootRef.current;
-      if (!root || !el) return;
-
-      const io = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) setShouldRender(true);
-          onVisibilityChange?.(pageIndex, entry.intersectionRatio);
-        },
-        { root, rootMargin: "400px 0px", threshold: [0, 0.2, 0.4, 0.6, 0.8, 1] }
-      );
-      io.observe(el);
-      return () => io.disconnect();
-    }, [scrollRoot, pageIndex, onVisibilityChange]);
 
     useEffect(() => {
       let cancelled = false;
@@ -109,7 +81,7 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
     }, [pdfDoc, pageIndex, renderScale]);
 
     const renderPage = useCallback(async () => {
-      if (!shouldRender || !canvasRef.current || renderScale <= 0) return;
+      if (!canvasRef.current || renderScale <= 0) return;
 
       const gen = ++renderGenRef.current;
       renderTaskRef.current?.cancel();
@@ -142,7 +114,7 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
       const task = page.render({ canvasContext: ctx, viewport, canvas });
       renderTaskRef.current = task;
       await task.promise.catch(() => undefined);
-    }, [pdfDoc, pageIndex, renderScale, shouldRender]);
+    }, [pdfDoc, pageIndex, renderScale]);
 
     useEffect(() => {
       renderPage();
@@ -201,7 +173,7 @@ export const PdfPageView = forwardRef<HTMLDivElement, PdfPageViewProps>(
         }
       : null;
 
-    const showPage = shouldRender && pageSize.width > 0 && pageSize.height > 0;
+    const showPage = pageSize.width > 0 && pageSize.height > 0;
 
     return (
       <div

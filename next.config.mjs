@@ -2,6 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Browser calls Railway directly; expose server env to client at build time.
+  env: {
+    NEXT_PUBLIC_REDACT_API_URL:
+      process.env.NEXT_PUBLIC_REDACT_API_URL || process.env.REDACT_API_URL || "",
+    NEXT_PUBLIC_REDACT_API_KEY:
+      process.env.NEXT_PUBLIC_REDACT_API_KEY || process.env.REDACT_API_KEY || "",
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "100mb",
+    },
+  },
   async redirects() {
     return [
       {

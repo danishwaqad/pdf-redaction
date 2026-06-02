@@ -21,12 +21,19 @@ def _load_dotenv() -> None:
 
 _load_dotenv()
 
-from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from starlette.datastructures import UploadFile
+from starlette.formparsers import MultiPartException
 
 from app.redact_engine import apply_redactions_pymupdf
-from app.security import auth_status, require_api_key, validate_pdf_bytes
+from app.security import (
+    MAX_MULTIPART_PART_BYTES,
+    auth_status,
+    require_api_key,
+    validate_pdf_bytes,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -46,28 +53,55 @@ app.add_middleware(
 )
 
 
-API_BUILD_ID = "auth-v2"
+API_BUILD_ID = "multipart-100mb-v1"
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "engine": "pymupdf", "build": API_BUILD_ID, **auth_status()}
+    return {
+        "status": "ok",
+        "engine": "pymupdf",
+        "build": API_BUILD_ID,
+        "max_multipart_part_mb": round(MAX_MULTIPART_PART_BYTES / (1024 * 1024)),
+        **auth_status(),
+    }
 
 
 @app.post("/redact")
-async def redact(
-    request: Request,
-    file: UploadFile = File(...),
-    redactions: str = Form(...),
-    options: str = Form(default="{}"),
-):
+async def redact(request: Request):
     require_api_key(request)
+
+    try:
+        form = await request.form(
+            max_part_size=MAX_MULTIPART_PART_BYTES,
+            max_files=4,
+            max_fields=16,
+        )
+    except MultiPartException as e:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"{e.message} "
+                f"(server limit is {MAX_MULTIPART_PART_BYTES // (1024 * 1024)} MB per part)."
+            ),
+        ) from e
+
+    file = form.get("file")
+    if not isinstance(file, UploadFile):
+        raise HTTPException(400, "Missing PDF file")
+
+    redactions_field = form.get("redactions")
+    if not isinstance(redactions_field, str) or not redactions_field.strip():
+        raise HTTPException(400, "Missing redactions JSON")
+
+    options_field = form.get("options")
+    options_str = options_field if isinstance(options_field, str) else "{}"
 
     if file.content_type and "pdf" not in file.content_type.lower():
         raise HTTPException(400, "Upload must be a PDF file")
 
     try:
-        opts = json.loads(options) if options else {}
+        opts = json.loads(options_str) if options_str else {}
     except json.JSONDecodeError as e:
         raise HTTPException(400, f"Invalid options JSON: {e}") from e
 
@@ -80,7 +114,7 @@ async def redact(
     try:
         out = apply_redactions_pymupdf(
             pdf_bytes,
-            redactions,
+            redactions_field,
             secure_image_pages=bool(opts.get("secureImagePages")),
             hybrid_page_indices=opts.get("hybridPageIndices") or [],
         )

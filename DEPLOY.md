@@ -3,12 +3,13 @@
 Vercel **sirf Next.js frontend** host karta hai. **PyMuPDF backend** alag service par chalega (Railway ya Render — free tier se start).
 
 ```
-User browser
-    → your-app.vercel.app (Next.js)
-    → /api/redact (Vercel serverless proxy)
-    → api.railway.app (FastAPI + PyMuPDF)
-    → redacted PDF download
+User browser (Vercel = UI only)
+    → your-app.vercel.app (Next.js — preview, search, marks)
+    → DIRECT POST → api.railway.app/redact (FastAPI + PyMuPDF, up to 100 MB)
+    → redacted PDF download in browser
 ```
+
+**No Vercel body-size limit** on export — the PDF never passes through `/api/redact` in production.
 
 ---
 
@@ -62,10 +63,12 @@ git push origin main
 
    | Name | Value |
    |------|--------|
-   | `REDACT_API_URL` | `https://YOUR-RAILWAY-URL` (no trailing slash) |
-   | `REDACT_API_KEY` | same secret as Railway |
+   | `REDACT_API_URL` | `https://YOUR-RAILWAY-URL` (no trailing slash) — **required**; browser calls this directly |
+   | `REDACT_API_KEY` | same secret as Railway — **required** on production Railway |
    | `NEXT_PUBLIC_SITE_URL` | `https://your-app.vercel.app` |
    | `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | optional analytics |
+
+   `next.config.mjs` copies `REDACT_API_*` → `NEXT_PUBLIC_REDACT_API_*` at build time (no duplicate vars needed).
 
 5. **Deploy**  
 
@@ -87,14 +90,14 @@ git push origin main
 
 ---
 
-## Vercel limits (important)
+## Large PDFs & many redactions
 
-| Plan | `/api/redact` timeout | Large PDF |
-|------|----------------------|-----------|
-| Hobby | ~10s | Choti files OK |
-| Pro | 120s (code mein set) | Bari files better |
+| Layer | Limit |
+|-------|--------|
+| Railway API | 100 MB PDF, unlimited mark count (practical browser/Railway timeout ~10 min) |
+| Vercel | **Not used** for Apply Redactions |
 
-Bari PDFs (50MB+) ke liye Vercel **Pro** ya backend ko directly call karna (future).
+Ensure Railway **Settings → Networking** has a public URL and service does not sleep on free tier during long jobs.
 
 ---
 
@@ -110,9 +113,10 @@ Bari PDFs (50MB+) ke liye Vercel **Pro** ya backend ko directly call karna (futu
 
 | Problem | Fix |
 |---------|-----|
-| "Redaction server is offline" | `REDACT_API_URL` galat / Railway sleep — health URL check |
-| CORS error | Railway `CORS_ORIGINS` mein exact Vercel URL |
-| 502 timeout | PDF choti try karo ya Vercel Pro |
+| "Redaction server is offline" | `REDACT_API_URL` missing on Vercel — redeploy after setting env |
+| CORS error | Railway `CORS_ORIGINS` mein exact site URL (comma-separated) |
+| 401 Unauthorized | `REDACT_API_KEY` same on Railway + Vercel, redeploy both |
+| Slow / timeout | Very large PDF — wait; Railway may need paid plan for long CPU |
 | Railway build fail | Root = `backend`, Python 3.12 |
 
 ---
