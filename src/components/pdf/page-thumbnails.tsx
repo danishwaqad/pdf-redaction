@@ -33,7 +33,7 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
       }
 
       const existing = new Set(Object.keys(thumbs).map((x) => Number(x)));
-      for (const idx of preload) {
+      for (const idx of Array.from(preload)) {
         if (cancelled) break;
         if (existing.has(idx)) continue;
         const page = await pdfDoc.getPage(idx + 1);
