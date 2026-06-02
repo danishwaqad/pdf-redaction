@@ -2,6 +2,11 @@
 
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { generateId } from "@/lib/utils";
+import {
+  buildPageTextModel,
+  groupSpansByPage,
+  matchRangeToRedactionRect,
+} from "./page-text";
 import type { RedactionRect, TextSpan } from "./types";
 
 // --- Extract & text-layer detection ---
@@ -22,6 +27,7 @@ export async function extractAllTextSpans(doc: PDFDocumentProxy): Promise<TextSp
         y: t[5] - fontHeight * 0.2,
         width: item.width || item.str.length * fontHeight * 0.5,
         height: fontHeight * 1.2,
+        endsLine: "hasEOL" in item && Boolean(item.hasEOL),
       });
     }
   }
@@ -59,6 +65,46 @@ function buildSearchRegex(query: string, useRegex: boolean): RegExp | null {
   }
 }
 
+function findMatchesOnPage(
+  pageIndex: number,
+  pageSpans: TextSpan[],
+  regex: RegExp
+): Omit<RedactionRect, "id">[] {
+  const { text, refs } = buildPageTextModel(pageSpans);
+  if (!text) return [];
+
+  const flags = regex.flags.includes("g") ? regex.flags : `${regex.flags}g`;
+  const re = new RegExp(regex.source, flags);
+  const rects: Omit<RedactionRect, "id">[] = [];
+  const seen = new Set<string>();
+
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const matchText = m[0];
+    const matchStart = m.index ?? 0;
+    const matchEnd = matchStart + matchText.length;
+    if (matchText.length === 0) {
+      re.lastIndex++;
+      continue;
+    }
+
+    const key = `${pageIndex}:${matchStart}:${matchEnd}:${matchText.toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    const rect = matchRangeToRedactionRect(
+      pageIndex,
+      refs,
+      matchStart,
+      matchEnd,
+      matchText
+    );
+    if (rect) rects.push(rect);
+  }
+
+  return rects;
+}
+
 export function searchTextSpans(
   spans: TextSpan[],
   query: string,
@@ -68,33 +114,42 @@ export function searchTextSpans(
   if (!regex) return [];
 
   const rects: RedactionRect[] = [];
-  const seen = new Set<string>();
+  const byPage = groupSpansByPage(spans);
 
-  for (const span of spans) {
-    const flags = regex.flags.includes("g") ? regex.flags : regex.flags + "g";
-    const re = new RegExp(regex.source, flags);
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(span.text)) !== null) {
-      const text = m[0];
-      const idx = m.index ?? 0;
-      const charWidth = span.width / Math.max(span.text.length, 1);
-      const key = `${span.pageIndex}:${text}:${idx}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const pad = 2;
-      rects.push({
-        id: generateId(),
-        pageIndex: span.pageIndex,
-        x: span.x + idx * charWidth - pad,
-        y: span.y - pad,
-        width: text.length * charWidth + pad * 2,
-        height: span.height + pad * 2,
-        source: "search",
-        label: text,
-      });
+  for (const [pageIndex, pageSpans] of byPage) {
+    for (const rect of findMatchesOnPage(pageIndex, pageSpans, regex)) {
+      rects.push({ ...rect, id: generateId() });
     }
   }
+
   return rects;
+}
+
+export function countSearchMatches(
+  spans: TextSpan[],
+  query: string,
+  useRegex: boolean
+): number {
+  const regex = buildSearchRegex(query, useRegex);
+  if (!regex) return 0;
+
+  let total = 0;
+  const byPage = groupSpansByPage(spans);
+  for (const [, pageSpans] of byPage) {
+    const { text } = buildPageTextModel(pageSpans);
+    if (!text) continue;
+    const flags = regex.flags.includes("g") ? regex.flags : `${regex.flags}g`;
+    const re = new RegExp(regex.source, flags);
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      if (!m[0].length) {
+        re.lastIndex++;
+        continue;
+      }
+      total++;
+    }
+  }
+  return total;
 }
 
 // --- PII patterns ---
@@ -142,33 +197,47 @@ export function detectPatterns(
   const rects: RedactionRect[] = [];
   const seen = new Set<string>();
 
-  for (const span of spans) {
+  const byPage = groupSpansByPage(spans);
+
+  for (const [pageIndex, pageSpans] of byPage) {
+    const { text, refs } = buildPageTextModel(pageSpans);
+    if (!text) continue;
+
     for (const key of keys) {
       const regex = PATTERNS[key];
-      const flags = regex.flags.includes("g") ? regex.flags : regex.flags + "g";
+      const flags = regex.flags.includes("g") ? regex.flags : `${regex.flags}g`;
       const re = new RegExp(regex.source, flags);
       let m: RegExpExecArray | null;
-      while ((m = re.exec(span.text)) !== null) {
-        const text = m[0];
-        if (key === "creditCard" && !luhnCheck(text)) continue;
-        const idx = m.index ?? 0;
-        const charWidth = span.width / Math.max(span.text.length, 1);
-        const x = span.x + idx * charWidth;
-        const dedupeKey = `${span.pageIndex}:${key}:${text}:${Math.round(x)}`;
+      while ((m = re.exec(text)) !== null) {
+        const matchText = m[0];
+        const matchStart = m.index ?? 0;
+        const matchEnd = matchStart + matchText.length;
+        if (!matchText.length) {
+          re.lastIndex++;
+          continue;
+        }
+        if (key === "creditCard" && !luhnCheck(matchText)) continue;
+
+        const dedupeKey = `${pageIndex}:${key}:${matchStart}:${matchEnd}`;
         if (seen.has(dedupeKey)) continue;
         seen.add(dedupeKey);
         counts[key]++;
-        const pad = 2;
-        rects.push({
-          id: generateId(),
-          pageIndex: span.pageIndex,
-          x: x - pad,
-          y: span.y - pad,
-          width: text.length * charWidth + pad * 2,
-          height: span.height + pad * 2,
-          source: "pattern",
-          label: key,
-        });
+
+        const base = matchRangeToRedactionRect(
+          pageIndex,
+          refs,
+          matchStart,
+          matchEnd,
+          key
+        );
+        if (base) {
+          rects.push({
+            ...base,
+            id: generateId(),
+            source: "pattern",
+            label: key,
+          });
+        }
       }
     }
   }

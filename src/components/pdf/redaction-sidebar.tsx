@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Search,
   Mail,
@@ -14,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useRedactionStore } from "@/store/redaction-store";
 import { cn } from "@/lib/utils";
-import type { PatternKey } from "@/lib/pdf/text";
+import { countSearchMatches, type PatternKey } from "@/lib/pdf/text";
 
 const PII_BUTTONS: { key: PatternKey; label: string; icon: React.ElementType }[] = [
   { key: "email", label: "Emails", icon: Mail },
@@ -29,10 +30,19 @@ export function RedactionSidebar() {
   const useRegex = useRedactionStore((s) => s.useRegex);
   const setSearchQuery = useRedactionStore((s) => s.setSearchQuery);
   const setUseRegex = useRedactionStore((s) => s.setUseRegex);
+  const textSpans = useRedactionStore((s) => s.textSpans);
   const runSearch = useRedactionStore((s) => s.runSearch);
   const addRedactions = useRedactionStore((s) => s.addRedactions);
   const runPatternDetect = useRedactionStore((s) => s.runPatternDetect);
   const patternSummary = useRedactionStore((s) => s.patternSummary);
+
+  const matchCount = useMemo(
+    () =>
+      searchQuery.trim()
+        ? countSearchMatches(textSpans, searchQuery, useRegex)
+        : 0,
+    [textSpans, searchQuery, useRegex]
+  );
 
   const markSearchMatches = () => {
     const found = runSearch();
@@ -76,6 +86,11 @@ export function RedactionSidebar() {
           />
           Use regex
         </label>
+        {matchCount > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {matchCount} match{matchCount !== 1 ? "es" : ""} in document
+          </p>
+        )}
         <Button className="h-10 w-full" size="sm" onClick={markSearchMatches} disabled={!searchQuery.trim()}>
           Mark all matches
         </Button>

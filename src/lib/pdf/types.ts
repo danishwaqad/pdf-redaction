@@ -19,6 +19,8 @@ export interface TextSpan {
   y: number;
   width: number;
   height: number;
+  /** PDF.js marks end-of-line after this text run */
+  endsLine?: boolean;
 }
 
 export interface SearchMatch {

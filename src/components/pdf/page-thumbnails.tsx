@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRedactionStore } from "@/store/redaction-store";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 type PageThumbnailsProps = {
@@ -13,7 +12,7 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
   const pdfDoc = useRedactionStore((s) => s.pdfDoc);
   const numPages = useRedactionStore((s) => s.numPages);
   const currentPage = useRedactionStore((s) => s.currentPage);
-  const setCurrentPage = useRedactionStore((s) => s.setCurrentPage);
+  const goToPage = useRedactionStore((s) => s.goToPage);
   const redactions = useRedactionStore((s) => s.redactions);
 
   const [thumbs, setThumbs] = useState<string[]>([]);
@@ -52,7 +51,7 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
     <button
       key={idx}
       type="button"
-      onClick={() => setCurrentPage(idx)}
+      onClick={() => goToPage(idx)}
       className={cn(
         "relative shrink-0 overflow-hidden rounded-md border-2 transition-all hover:border-brand/50",
         orientation === "horizontal" ? "w-24 sm:w-28" : "w-full",
@@ -79,13 +78,13 @@ export function PageThumbnails({ orientation = "vertical" }: PageThumbnailsProps
   }
 
   return (
-    <div className="flex h-full w-36 shrink-0 flex-col border-r bg-white md:w-44">
+    <div className="flex h-full min-h-0 w-36 shrink-0 flex-col border-r bg-white md:w-44">
       <div className="border-b px-3 py-2 text-xs font-semibold text-muted-foreground">
         Pages ({numPages})
       </div>
-      <ScrollArea className="flex-1">
-        <div className="space-y-2 p-2">{thumbs.map((src, idx) => thumbButton(src, idx))}</div>
-      </ScrollArea>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-2">
+        <div className="space-y-2 pb-2">{thumbs.map((src, idx) => thumbButton(src, idx))}</div>
+      </div>
     </div>
   );
 }

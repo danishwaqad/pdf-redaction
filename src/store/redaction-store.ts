@@ -55,10 +55,13 @@ interface RedactionState {
   hybridPageIndices: number[];
   flattenBeforeRedact: boolean;
   lastApplyUsedFlatten: boolean;
+  scrollTargetPage: number | null;
 
   loadFile: (file: File) => Promise<void>;
   reset: () => void;
   setCurrentPage: (page: number) => void;
+  goToPage: (page: number) => void;
+  clearScrollTarget: () => void;
   setScale: (scale: number) => void;
   addRedaction: (rect: Omit<RedactionRect, "id">) => void;
   addRedactions: (rects: Omit<RedactionRect, "id">[]) => void;
@@ -83,6 +86,18 @@ interface RedactionState {
 
 function cloneRedactions(r: RedactionRect[]): RedactionRect[] {
   return r.map((x) => ({ ...x }));
+}
+
+function rectIdentityKey(rect: Omit<RedactionRect, "id">): string {
+  return [
+    rect.pageIndex,
+    rect.source,
+    rect.label ?? "",
+    rect.x.toFixed(2),
+    rect.y.toFixed(2),
+    rect.width.toFixed(2),
+    rect.height.toFixed(2),
+  ].join(":");
 }
 
 export const useRedactionStore = create<RedactionState>()(
@@ -115,6 +130,7 @@ export const useRedactionStore = create<RedactionState>()(
     hybridPageIndices: [],
     flattenBeforeRedact: false,
     lastApplyUsedFlatten: false,
+    scrollTargetPage: null,
 
     pushHistory: () => {
       set((s) => {
@@ -235,6 +251,13 @@ export const useRedactionStore = create<RedactionState>()(
       }
     },
 
+    goToPage: (page) => {
+      get().setCurrentPage(page);
+      set({ scrollTargetPage: page });
+    },
+
+    clearScrollTarget: () => set({ scrollTargetPage: null }),
+
     setScale: (scale) => set({ scale }),
     setSearchQuery: (q) => set({ searchQuery: q }),
     setUseRegex: (v) => set({ useRegex: v }),
@@ -325,9 +348,12 @@ export const useRedactionStore = create<RedactionState>()(
 
     addRedactions: (rects) => {
       if (!rects.length || !get().canRedact()) return;
+      const existingKeys = new Set(get().redactions.map((r) => rectIdentityKey(r)));
+      const uniqueRects = rects.filter((r) => !existingKeys.has(rectIdentityKey(r)));
+      if (!uniqueRects.length) return;
       get().pushHistory();
       set((s) => {
-        for (const r of rects) s.redactions.push({ ...r, id: generateId() });
+        for (const r of uniqueRects) s.redactions.push({ ...r, id: generateId() });
       });
     },
 
@@ -353,12 +379,7 @@ export const useRedactionStore = create<RedactionState>()(
     runPatternDetect: (keys) => {
       const { rects, counts } = detectPatterns(get().textSpans, keys);
       set({ patternCounts: counts, patternSummary: formatPatternSummary(counts) });
-      if (rects.length) {
-        get().pushHistory();
-        set((s) => {
-          s.redactions.push(...rects);
-        });
-      }
+      get().addRedactions(rects);
     },
   }))
 );
