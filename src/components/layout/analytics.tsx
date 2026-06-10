@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { GoogleAnalytics } from "@/components/layout/google-analytics";
-import { GoogleAdSense } from "@/components/layout/google-adsense";
-import { ADS_DISABLED_BY_BUILD } from "@/lib/ad-guards";
 import {
   ANALYTICS_DISABLED_BY_BUILD,
   areAnalyticsDisabledForHostname,
@@ -48,7 +46,6 @@ export function Analytics() {
   return (
     <>
       {analyticsAllowed ? <GoogleAnalytics /> : null}
-      {!ADS_DISABLED_BY_BUILD ? <GoogleAdSense /> : null}
       {analyticsAllowed ? <PlausibleAnalytics /> : null}
     </>
   );
