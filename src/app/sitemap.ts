@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTION_SITE_URL } from "@/lib/seo";
-import { getAllPosts } from "@/lib/blog";
+import { getAllPosts, getTotalBlogPages } from "@/lib/blog";
 
 const staticPages: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[0]["changeFrequency"] }[] = [
   { path: "", priority: 1, changeFrequency: "weekly" },
@@ -24,12 +24,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority,
   }));
 
-  const blogUrls = getAllPosts().map((p) => ({
+  const posts = getAllPosts();
+  const latestBlogDate =
+    posts.length > 0 ? new Date(posts[0].date) : now;
+
+  const blogPaginationUrls = Array.from(
+    { length: Math.max(0, getTotalBlogPages() - 1) },
+    (_, i) => {
+      const page = i + 2;
+      return {
+        url: `${PRODUCTION_SITE_URL}/blog/page/${page}`,
+        lastModified: latestBlogDate,
+        changeFrequency: "weekly" as const,
+        priority: 0.75,
+      };
+    }
+  );
+
+  const blogUrls = posts.map((p) => ({
     url: `${PRODUCTION_SITE_URL}/blog/${p.slug}`,
     lastModified: new Date(p.date),
     changeFrequency: "monthly" as const,
     priority: 0.8,
   }));
 
-  return [...staticUrls, ...blogUrls];
+  return [...staticUrls, ...blogPaginationUrls, ...blogUrls];
 }
