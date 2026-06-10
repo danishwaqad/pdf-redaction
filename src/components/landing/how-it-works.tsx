@@ -1,4 +1,5 @@
 import { Upload, MousePointer2, Download } from "lucide-react";
+import { DemoVideoEmbed } from "@/components/landing/demo-video-modal";
 
 const steps = [
   {
@@ -34,6 +35,7 @@ export function HowItWorks() {
             </div>
           ))}
         </div>
+        <DemoVideoEmbed />
       </div>
     </section>
   );

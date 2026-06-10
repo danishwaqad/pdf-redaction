@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DemoVideoModal } from "@/components/landing/demo-video-modal";
 import { PdfUploader } from "@/components/pdf/pdf-uploader";
 import { HERO_BADGE, HERO_SUBTITLE, HERO_TITLE } from "@/lib/site-messaging";
 
@@ -27,9 +28,7 @@ export function Hero() {
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
-              <Link href="#demo">See 10-sec Demo</Link>
-            </Button>
+            <DemoVideoModal />
           </div>
         </div>
         <div className="mx-auto mt-12 max-w-xl">

@@ -28,3 +28,6 @@ export const REDACTION_DATA_FLOW =
   "You open and mark PDFs in your browser. When you click Apply redaction, the file is sent over HTTPS to our secure redaction service, processed in memory, and returned. We do not store PDFs on disk or in a cloud inbox.";
 
 export const COMPARISON_STORES_PDF = "No (HTTPS only on Apply)";
+
+/** YouTube demo: https://youtu.be/qdeUfDxq_AQ */
+export const DEMO_YOUTUBE_VIDEO_ID = "qdeUfDxq_AQ";

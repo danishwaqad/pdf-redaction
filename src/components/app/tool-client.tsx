@@ -4,6 +4,7 @@ import { useRedactionStore } from "@/store/redaction-store";
 import { EditorWorkspace } from "@/components/app/editor-workspace";
 import { PdfUploader } from "@/components/pdf/pdf-uploader";
 import { Shield } from "lucide-react";
+import { DemoVideoModal } from "@/components/landing/demo-video-modal";
 import { TOOL_TAGLINE } from "@/lib/site-messaging";
 
 export function ToolClient() {
@@ -18,6 +19,9 @@ export function ToolClient() {
           </div>
           <h1 className="text-2xl font-bold md:text-3xl">Redact PDF Online Free</h1>
           <p className="mt-2 text-muted-foreground">{TOOL_TAGLINE}</p>
+          <div className="mt-4 flex justify-center">
+            <DemoVideoModal variant="compact" />
+          </div>
         </div>
         <PdfUploader variant="hero" />
       </div>
