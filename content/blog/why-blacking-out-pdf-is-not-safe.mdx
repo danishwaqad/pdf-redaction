@@ -16,12 +16,14 @@ A black rectangle on a PDF **looks** final. It triggers the same visual cue as n
 
 ## How PDFs store text (simplified)
 
-PDF files are not single images. They contain:
+PDF files are not single images. They contain multiple layers:
 
-- **Content streams** with drawing operators (`Tj`, `TJ`) placing glyphs
-- **Fonts** mapped to character codes
-- Optional **images** for scanned pages with OCR text layers above them
-- **Annotations** (comments, highlights) in separate dictionaries
+| PDF component | What it holds | Redaction risk if ignored |
+|---------------|---------------|---------------------------|
+| Content streams | Text drawing operators (`Tj`, `TJ`) | Text remains searchable under black boxes |
+| Fonts | Character code mappings | Extractors can rebuild strings |
+| Images | Scanned page bitmaps | Visual-only cover leaves OCR text |
+| Annotations | Comments, highlights, shapes | Separate from visible page content |
 
 Drawing a filled black rectangle adds new operators **on top**. Unless you delete underlying text operators or rasterize the page, extractors read what is still there.
 
@@ -41,27 +43,22 @@ Share this demo in security awareness training. It lands harder than policy PDFs
 
 ## Why vendors sell "blackout" features
 
-Marketing language blurs terms:
-
-- **Highlight** (yellow, reversible)  
-- **Redact** (intended removal in professional tools)  
-- **Black shape** (cosmetic cover)  
+| Marketing term | What users think | What often happens |
+|----------------|------------------|----------------------|
+| Highlight | Temporary mark | Reversible yellow overlay |
+| Redact | Permanent removal | True in pro tools only if applied |
+| Black shape | Hidden forever | Cosmetic cover — text may remain |
 
 Consumer apps optimize for speed, not forensic safety. Always read whether the feature **applies** redactions or merely draws.
 
 ## True redaction techniques
 
-### Content stream removal
-
-Professional tools delete text objects and associated fonts where possible. Complex layouts may leave fragments — verify anyway.
-
-### Rasterization (flattening)
-
-Render the page (or redacted regions) to a bitmap and replace the page. [RedactPDF](/tool) uses this for pages with marks: after you draw boxes, export embeds a flat image without selectable text under redacted areas.
-
-### Sanitization
-
-Removes metadata, hidden layers, embedded attachments, JavaScript. Complements but does not replace visual redaction.
+| Technique | How it works | Security level |
+|-----------|--------------|----------------|
+| Content stream removal | Deletes text objects and fonts in marked areas | High — verify anyway |
+| Rasterization (flattening) | Page becomes bitmap; text operators gone | High — [RedactPDF](/tool) uses this on marked pages |
+| Sanitization | Strips metadata, hidden layers, attachments | Medium — complements visual redaction |
+| Black shape overlay | Draws on top without deleting | **Unsafe** — fails search/copy tests |
 
 ## Scanned documents add OCR risk
 

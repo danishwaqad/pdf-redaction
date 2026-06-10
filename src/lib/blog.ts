@@ -3,6 +3,8 @@ import path from "path";
 import matter from "gray-matter";
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
+
+export const BLOG_POSTS_PER_PAGE = 5;
 const BLOG_ALIASES: Record<string, string> = {
   "how-to-redact-a-pdf-on-iphone-ipad": "redact-pdf-on-iphone-guide",
 };
@@ -51,6 +53,17 @@ export function getAllPosts(): BlogPostMeta[] {
     .filter((p): p is BlogPost => p !== null)
     .map(toMeta)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+export function getTotalBlogPages(): number {
+  return Math.max(1, Math.ceil(getAllPosts().length / BLOG_POSTS_PER_PAGE));
+}
+
+export function getPostsForPage(page: number): BlogPostMeta[] {
+  const totalPages = getTotalBlogPages();
+  const safePage = Math.min(Math.max(1, Math.floor(page)), totalPages);
+  const start = (safePage - 1) * BLOG_POSTS_PER_PAGE;
+  return getAllPosts().slice(start, start + BLOG_POSTS_PER_PAGE);
 }
 
 export function getPostBySlug(slug: string): BlogPost | null {

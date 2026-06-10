@@ -6,19 +6,22 @@
 export const PRIVACY_BANNER =
   "Mark redactions in your browser. On Apply, your PDF is sent over HTTPS for processing only — we do not store files.";
 
-export const HERO_BADGE = "Permanent redaction · No signup · No file storage";
+export const HERO_BADGE = "Free PDF redaction · No Adobe · No signup · No file storage";
 
-export const HERO_TITLE = "Redact PDF Online — Free, No Signup";
+export const HERO_TITLE = "Redact PDF Online Free — Permanently Remove Text";
 
 export const HERO_SUBTITLE =
-  "Permanently delete sensitive text from PDF files online. Unlike black marker tools, we remove data from the file so it can't be recovered. Used for court documents, GDPR, and privacy.";
+  "Delete sensitive text from PDF files online — not just black boxes. Auto-detect emails, phones & SSNs. Secure apply, no account. For court, GDPR, HR & legal teams.";
 
-export const TOOL_TAGLINE = "No ads · Mark locally · Secure apply · Permanent redaction";
+export const TOOL_TAGLINE = "Free · No signup · Auto-detect PII · Permanent redaction";
 
-export const UPLOADER_HINT = "Max 100 MB · Opens in your browser · Apply uses encrypted HTTPS (not stored)";
+export const UPLOADER_HINT =
+  "PDF only · Max 100 MB · Mark in browser · Apply via secure HTTPS (not stored)";
+
+export const UPLOADER_SUBTEXT = "Free PDF redaction · No signup required";
 
 export const FOOTER_BLURB =
-  "Free PDF redaction. Mark in the browser; export via secure processing. No signup. No file storage.";
+  "Free online PDF redaction. Permanently remove text from PDF — no Adobe, no signup, no file storage.";
 
 /** One paragraph for legal/FAQ — full detail in privacy policy */
 export const REDACTION_DATA_FLOW =

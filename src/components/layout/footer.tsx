@@ -14,9 +14,12 @@ const legalLinks = [
 ];
 
 const resourceLinks = [
-  { href: "/tool", label: "Redact PDF Tool" },
+  { href: "/tool", label: "Redact PDF Online Free" },
   { href: "/faq", label: "FAQ" },
   { href: "/security", label: "Security" },
+  { href: "/blog/how-to-remove-text-from-pdf-permanently", label: "Remove Text from PDF" },
+  { href: "/blog/how-to-redact-pdf-without-adobe", label: "Redact Without Adobe" },
+  { href: "/blog/auto-redact-pdf-pii-detection", label: "Auto Redact PII" },
 ];
 
 const LAUNCH_DATE = "May 21, 2026";

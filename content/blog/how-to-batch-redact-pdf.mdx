@@ -1,0 +1,125 @@
+---
+title: "How to Batch Redact 100 PDFs at Once — Free Repeatable Method"
+description: "Batch redact PDF files efficiently — workflow for law firms and HR teams processing many documents. Repeatable free method until native bulk ships."
+date: "2026-06-18"
+readTime: "11 min"
+faqs:
+  - question: "Can I redact multiple PDFs at once for free?"
+    answer: "RedactPDF currently processes one PDF per session. This guide shows a repeatable batch workflow; native bulk upload is on the roadmap."
+  - question: "How do law firms redact hundreds of PDFs?"
+    answer: "Enterprises use e-discovery platforms. Small firms use repeatable checklists, templates, and consistent verification per file."
+  - question: "What is the fastest way to bulk redact PDFs?"
+    answer: "Standardize marking rules, use PII auto-detect, and verify each output — speed comes from process, not skipping verification."
+---
+
+Law firms, HR departments, and FOIA offices face **batch redact PDF** reality: not one motion, but **fifty personnel files** or **a hundred loan packets** before Friday. Searches like **bulk redact PDF** and **redact multiple PDFs** reflect high-intent users with volume pain. Enterprise platforms charge five figures; this guide delivers a **free repeatable method** today — and previews where native batch upload is headed.
+
+## Current state: one file per session
+
+| Capability | RedactPDF today | Coming |
+|------------|-----------------|--------|
+| Single PDF redaction | Yes | — |
+| PII auto-detect per file | Yes | — |
+| Multi-file zip upload | Roadmap | Pro / batch tier |
+| API automation | Roadmap | Enterprise |
+
+Honest disclosure builds trust. Below is the fastest **manual batch** workflow until bulk ships.
+
+## The repeatable batch workflow (100 files)
+
+### Phase 1 — Prepare (30 min once)
+
+| Step | Action |
+|------|--------|
+| 1 | Create folder: `source/` and `redacted/` |
+| 2 | Write **redaction rules** doc: what to remove (SSN, account #, etc.) |
+| 3 | Name convention: `ORIGINAL_v1.pdf` → `REDACTED_v1.pdf` |
+| 4 | Bookmark [RedactPDF](/tool) in browser |
+
+### Phase 2 — Process each file (~3–8 min/file)
+
+| Step | Action |
+|------|--------|
+| 1 | Open RedactPDF → upload next PDF from `source/` |
+| 2 | Run **PII detect** + **search** for matter-specific strings |
+| 3 | Manual pass — headers, footers, exhibits |
+| 4 | Apply → save to `redacted/` with certificate |
+| 5 | **Verify** — search one known string per file |
+| 6 | Log in spreadsheet: filename, date, operator, pass/fail |
+
+### Phase 3 — QA sample (10%)
+
+| Sample size | Action |
+|-------------|--------|
+| 100 files | Fully re-verify 10 random outputs |
+| Any fail | Re-process failed file + adjacent same-type files |
+
+## Speed tips without skipping security
+
+| Tip | Time saved |
+|-----|------------|
+| Same redaction rules per doc type | Less decision fatigue |
+| PII detect first pass | Catches 60–80% of structured data |
+| Search template list (SSN, @, phone patterns) | Faster than manual scan |
+| Dual monitors — rules on screen 2 | Fewer mistakes |
+| Keyboard shortcuts browser back | Faster reload between files |
+
+**Never skip verification** — one leaked SSN in batch 100 costs more than all saved minutes.
+
+## Batch workflow by industry
+
+| Industry | Batch example | Priority marks |
+|----------|---------------|----------------|
+| Law firm | Discovery production | Names, SSN, account # |
+| HR | Offboarding 50 employees | SSN, salary, medical |
+| Mortgage broker | 30 bank statements | Account numbers, transactions |
+| FOIA office | 200 page releases | Third-party PII |
+
+See [SSN](/blog/how-to-redact-ssn-from-pdf), [bank statement](/blog/how-to-redact-bank-statement-pdf), and [medical HIPAA](/blog/how-to-redact-medical-records-pdf-hipaa) guides for field-specific rules.
+
+## Spreadsheet log template
+
+| Column | Example |
+|--------|---------|
+| Original filename | `Smith_Exhibit_4.pdf` |
+| Redacted filename | `REDACTED_Smith_Exhibit_4.pdf` |
+| Operator | j.doe |
+| Date UTC | 2026-06-18 |
+| Marks count | 12 |
+| Verify pass | Y/N |
+| Notes | OCR run on page 3 |
+
+## Batch redact: free tools vs enterprise
+
+| Solution | 100 PDFs | Cost |
+|----------|----------|------|
+| RedactPDF repeatable workflow | Hours — manual | Free |
+| Adobe Acrobat + actions | Faster with scripts | Paid |
+| Relativity / Nuix | Built for scale | $$$$ |
+| iLovePDF | No real batch redact | Freemium |
+
+## When to upgrade from free batch
+
+| Signal | Action |
+|--------|--------|
+| >20 files weekly | Document SOP; consider paid automation |
+| Court deadline under 48 hours | Add second reviewer |
+| Identical forms | Build search pattern library |
+| API need | Watch RedactPDF roadmap / contact |
+
+## Future: native bulk redact PDF
+
+Planned batch features:
+
+| Feature | Benefit |
+|---------|---------|
+| Multi-file queue | Upload 10–100 PDFs |
+| Shared redaction profile | Same PII rules applied |
+| Zip download | One-click delivery |
+| Batch certificate | Audit trail per job |
+
+Until launch, the workflow above is production-ready for disciplined teams.
+
+## Start your batch redact workflow
+
+Open [RedactPDF](/tool), process file one, log, verify, repeat. **Bulk redact PDF** at scale is a **process** — free tools plus tight SOP beat expensive software with sloppy verification.

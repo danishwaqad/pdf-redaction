@@ -4,6 +4,7 @@ import { useRedactionStore } from "@/store/redaction-store";
 import { EditorWorkspace } from "@/components/app/editor-workspace";
 import { PdfUploader } from "@/components/pdf/pdf-uploader";
 import { Shield } from "lucide-react";
+import { TOOL_TAGLINE } from "@/lib/site-messaging";
 
 export function ToolClient() {
   const pdfDoc = useRedactionStore((s) => s.pdfDoc);
@@ -15,10 +16,8 @@ export function ToolClient() {
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand text-white">
             <Shield className="h-7 w-7" />
           </div>
-          <h1 className="text-2xl font-bold md:text-3xl">PDF Redaction Tool</h1>
-          <p className="mt-2 text-muted-foreground">
-            No ads · Mark in browser · Secure apply · Permanent redaction
-          </p>
+          <h1 className="text-2xl font-bold md:text-3xl">Redact PDF Online Free</h1>
+          <p className="mt-2 text-muted-foreground">{TOOL_TAGLINE}</p>
         </div>
         <PdfUploader variant="hero" />
       </div>

@@ -35,6 +35,26 @@ const faqs = [
     q: "What is the maximum file size?",
     a: "100 MB to open in the editor. Large files may be slower on Apply; production hosting may limit request size (see Privacy Policy).",
   },
+  {
+    q: "How to redact a PDF online for free?",
+    a: "Open RedactPDF, upload your PDF, mark sensitive areas (draw boxes, search text, or auto-detect PII), then click Apply Redactions. No account is required. Download the redacted PDF and run search/copy tests before sharing.",
+  },
+  {
+    q: "How to remove text from a PDF permanently?",
+    a: "Permanent removal deletes extractable text from the PDF structure — not just a black overlay. Use a redaction tool that applies true removal, then verify by searching for known strings and pasting the file into a text editor.",
+  },
+  {
+    q: "Can I redact a PDF without Adobe Acrobat?",
+    a: "Yes. RedactPDF is a free browser alternative focused on permanent PDF redaction. You do not need an Adobe subscription or desktop install for basic redaction workflows.",
+  },
+  {
+    q: "Is it safe to redact PDFs online?",
+    a: "Marking happens in your browser. On Apply, the file is sent over HTTPS for processing and returned — we do not store PDFs in a cloud inbox. For highly sensitive material, follow your organization's policy and verify the output before distribution.",
+  },
+  {
+    q: "How to auto-detect emails and SSN in a PDF?",
+    a: "Use the PII panel in RedactPDF to detect emails, phones, credit cards, dates, and SSN patterns. Review every match, add manual boxes for names or other data, then apply permanent redaction.",
+  },
 ];
 
 export default function FaqPage() {
@@ -68,7 +88,15 @@ export default function FaqPage() {
             </div>
           ))}
         </dl>
-        <p className="mt-10 text-center text-sm text-muted-foreground">
+        <p className="mt-10 text-center">
+          <Link
+            href="/tool"
+            className="inline-flex items-center justify-center rounded-lg bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand/90"
+          >
+            Redact PDF Online Free
+          </Link>
+        </p>
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           More detail in our{" "}
           <Link href="/blog" className="text-brand hover:underline">
             blog guides

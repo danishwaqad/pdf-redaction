@@ -11,9 +11,9 @@ const TOOL_URL = `${PRODUCTION_SITE_URL}/tool`;
 
 const faqItems = [
   {
-    question: "Is RedactPDF free to use?",
+    question: "Is RedactPDF really free?",
     answer:
-      "Yes. You can open a PDF, mark redactions, and use the tool without creating an account. The goal is to keep simple PDF redaction fast and accessible for people who need to remove sensitive information quickly.",
+      "Yes. You can redact a PDF online for free without creating an account. Open your file, mark sensitive areas, and apply permanent redaction — no subscription and no Adobe license required.",
   },
   {
     question: "Is RedactPDF secure?",
@@ -50,20 +50,70 @@ const faqItems = [
     answer:
       "Yes. RedactPDF works in modern mobile browsers, including Safari on iPhone and iPad. For large or heavily scanned PDFs, desktop browsers may still provide a faster review experience.",
   },
+  {
+    question: "How is this different from Adobe Acrobat redact?",
+    answer:
+      "Adobe Acrobat requires a paid subscription for professional redaction. RedactPDF is a free browser tool focused only on permanent PDF redaction — no signup, no desktop install, and no full editing suite you do not need.",
+  },
+  {
+    question: "Does blacking out text in a PDF remove it permanently?",
+    answer:
+      "Only if the underlying text is deleted from the file structure. Drawing a black shape in a generic editor often leaves recoverable text. RedactPDF removes extractable content in your marked areas — then verify with search and copy-paste tests before sharing.",
+  },
+  {
+    question: "Can I auto-detect emails, phones, and SSN in a PDF?",
+    answer:
+      "Yes. Use the PII panel to detect emails, phone numbers, credit cards, dates, and SSN patterns, or run a text search to mark all matches. Combine auto-detect with manual boxes for names and other sensitive content.",
+  },
 ] as const;
 
 const metadataKeywords = [
+  "redact pdf online free",
+  "redact pdf free",
+  "redact pdf without adobe",
+  "remove text from pdf",
+  "delete text from pdf",
+  "black out text in pdf",
   "free pdf redaction tool",
-  "redact pdf online",
-  "remove sensitive data from pdf",
-  "pdf metadata removal",
+  "pdf redaction tool free",
+  "adobe acrobat redact alternative",
+  "auto redact pdf",
+  "permanent pdf redaction",
   "court compliant pdf redaction",
   "gdpr pdf redaction",
-  "black out pdf text safely",
-  "browser based pdf redactor",
-  "redact images in pdf",
   "secure pdf redaction",
 ];
+
+const keywordSections = [
+  {
+    title: "Redact PDF Online Free — No Account Required",
+    paragraphs: [
+      "People search for redact PDF online free because they need to remove sensitive information quickly — without paying for Adobe, creating an account, or uploading files to a long-term cloud inbox. RedactPDF is built for that workflow: open your PDF in the browser, mark what must go, and apply permanent redaction when you are ready to download a clean copy.",
+      "Free PDF redaction should mean more than a trial watermark. You should be able to complete the job — review pages, draw boxes, search for names, auto-detect common PII patterns, and export — without a paywall on the final download. That is the standard RedactPDF aims for.",
+    ],
+  },
+  {
+    title: "Free Adobe Acrobat Redaction Alternative",
+    paragraphs: [
+      "Adobe Acrobat redact is powerful but tied to a paid subscription many individuals and small teams do not have. If you need to redact a PDF without Adobe, a purpose-built browser tool is often faster than installing a full desktop suite.",
+      "RedactPDF focuses on one job: permanent removal of sensitive text and regions inside PDFs. For a deeper comparison of pricing, privacy, and when Acrobat still makes sense, see our guide on [Adobe Acrobat redact vs free alternatives](/blog/adobe-acrobat-redact-vs-free-alternatives).",
+    ],
+  },
+  {
+    title: "How to Black Out Text in PDF Permanently",
+    paragraphs: [
+      "To black out text in a PDF the right way, you must delete the underlying content — not just cover it. A black rectangle in Word, Canva, or a screenshot tool may look correct while the text remains searchable and copyable underneath.",
+      "After you redact, run three checks: search for known sensitive strings, try to select text under black areas, and paste the document into a plain text editor. If hidden text appears, the redaction failed. Read [why blacking out a PDF is not safe](/blog/why-blacking-out-pdf-is-not-safe) for the full explanation.",
+    ],
+  },
+  {
+    title: "Auto-Detect Sensitive Information (PII)",
+    paragraphs: [
+      "Manual boxes work for one-off edits, but auto redact workflows save time on long documents. RedactPDF can detect emails, phone numbers, credit cards, dates, and SSN-style patterns, plus run custom text search across the full file.",
+      "Use auto-detect as a first pass, then review every page before applying. Names, addresses, and context-specific identifiers often still need manual marks. For a full walkthrough, see [auto redact PDF: find and remove PII](/blog/auto-redact-pdf-pii-detection).",
+    ],
+  },
+] as const;
 
 const featureHighlights = [
   {
@@ -133,6 +183,36 @@ const userGroups = [
 
 const relatedGuides = [
   {
+    href: "/blog/how-to-remove-text-from-pdf-permanently",
+    title: "Remove Text from PDF Permanently",
+    description: "Delete extractable text — not just visual black boxes.",
+  },
+  {
+    href: "/blog/how-to-redact-pdf-online-free",
+    title: "Redact PDF Online Free",
+    description: "No signup, no Adobe — step-by-step free redaction.",
+  },
+  {
+    href: "/blog/how-to-black-out-text-in-pdf",
+    title: "Black Out Text in PDF the Right Way",
+    description: "Permanent blackout vs unsafe overlays explained.",
+  },
+  {
+    href: "/blog/how-to-redact-pdf-without-adobe",
+    title: "Redact PDF Without Adobe",
+    description: "Free workflow when you do not have Acrobat.",
+  },
+  {
+    href: "/blog/auto-redact-pdf-pii-detection",
+    title: "Auto Redact PDF (PII Detection)",
+    description: "Find emails, phones, SSNs, and cards automatically.",
+  },
+  {
+    href: "/blog/how-to-redact-scanned-pdf-ocr",
+    title: "Redact Scanned PDFs (OCR Guide)",
+    description: "Run OCR first, then redact image-based pages.",
+  },
+  {
     href: "/blog/how-to-redact-pdf-for-court",
     title: "How to Redact a PDF for Court",
     description: "Court filing workflow, verification steps, and mistakes that can expose hidden text.",
@@ -189,27 +269,25 @@ const faqJsonLd = {
 export const metadata: Metadata = {
   title: {
     absolute:
-      "Free PDF Redaction Tool - Permanently Remove Sensitive Data Online | RedactPDF",
+      "Redact PDF Online Free — Permanently Remove Text | No Adobe | RedactPDF",
   },
   description:
-    "Redact text, images & metadata from PDFs online. No signup, no storage. GDPR & court compliant. Browser-based redaction is 100% private and secure. Try free.",
+    "Free PDF redaction tool. Permanently delete text from PDF online — not cosmetic black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS apply, files not stored.",
   keywords: metadataKeywords,
   robots: { index: true, follow: true },
   alternates: { canonical: TOOL_URL },
   openGraph: {
-    title:
-      "Free PDF Redaction Tool - Permanently Remove Sensitive Data Online | RedactPDF",
+    title: "Redact PDF Online Free — Permanently Remove Text | No Adobe",
     description:
-      "Redact text, images & metadata from PDFs online. No signup, no storage. GDPR & court compliant. Browser-based redaction is 100% private and secure. Try free.",
+      "Free PDF redaction. Permanently delete text — not black boxes. Auto-detect PII, no signup, secure apply.",
     type: "website",
     url: TOOL_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "Free PDF Redaction Tool - Permanently Remove Sensitive Data Online | RedactPDF",
+    title: "Redact PDF Online Free — Permanently Remove Text | No Adobe",
     description:
-      "Redact text, images & metadata from PDFs online. No signup, no storage. GDPR & court compliant. Browser-based redaction is 100% private and secure. Try free.",
+      "Free PDF redaction. Permanently delete text — not black boxes. Auto-detect PII, no signup, secure apply.",
   },
 };
 
@@ -305,6 +383,41 @@ export default function ToolPage() {
               </div>
             ))}
           </section>
+
+          {keywordSections.map((section) => (
+            <section
+              key={section.title}
+              className="mt-10 rounded-3xl border bg-white p-8 shadow-card md:p-10"
+            >
+              <div className="max-w-3xl">
+                <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                  {section.title}
+                </h2>
+                {section.paragraphs.map((paragraph) => (
+                  <p
+                    key={paragraph.slice(0, 40)}
+                    className="mt-4 text-base leading-7 text-muted-foreground"
+                  >
+                    {paragraph.split(/(\[[^\]]+\]\([^)]+\))/g).map((part, i) => {
+                      const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+                      if (linkMatch) {
+                        return (
+                          <Link
+                            key={i}
+                            href={linkMatch[2]}
+                            className="font-medium text-brand hover:underline"
+                          >
+                            {linkMatch[1]}
+                          </Link>
+                        );
+                      }
+                      return part;
+                    })}
+                  </p>
+                ))}
+              </div>
+            </section>
+          ))}
 
           <section className="mt-10 rounded-3xl border bg-white p-8 shadow-card md:p-10">
             <div className="max-w-3xl">
@@ -503,7 +616,7 @@ export default function ToolPage() {
               </p>
             </div>
 
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {relatedGuides.map((guide) => (
                 <Link
                   key={guide.href}

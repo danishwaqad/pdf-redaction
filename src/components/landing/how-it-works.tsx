@@ -8,7 +8,7 @@ const steps = [
   },
   {
     icon: MousePointer2,
-    title: "Mark",
+    title: "Mark sensitive text",
     desc: "Draw boxes, search text, or auto-detect emails, phones, SSNs & cards.",
   },
   {

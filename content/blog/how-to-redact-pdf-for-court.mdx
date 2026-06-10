@@ -88,11 +88,13 @@ When you withhold rather than redact, prepare a privilege log describing the doc
 
 ## Common mistakes that cause rejections
 
-1. **Overlay-only black boxes** — text still searchable
-2. **Missing redaction in headers/footers** on only some pages
-3. **Hyperlinks** carrying hidden URLs with tokens or emails
-4. **Comments and markups** left enabled — review the comments panel
-5. **Filing the wrong file** — automate naming conventions to prevent swaps
+| Mistake | Consequence | Prevention |
+|---------|-------------|------------|
+| Overlay-only black boxes | Text still searchable | Use permanent redaction tool |
+| Headers/footers skipped | PII leaks on every page | Review all pages, not just body |
+| Hidden hyperlinks | URLs with tokens/emails exposed | Strip or redact link targets |
+| Comments/markups left on | Hidden notes in comments panel | Flatten or remove annotations |
+| Wrong file attached | Unredacted version filed | Naming conventions + double-check |
 
 ## Pro se filers and small firms
 

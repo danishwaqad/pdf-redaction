@@ -23,27 +23,33 @@ export const defaultMetadata: Metadata = {
   metadataBase: new URL(CANONICAL_SITE_URL),
   title: {
     default:
-      "Redact PDF Online Free - Hide Text in PDF Instantly | RedactPDF.org",
+      "Redact PDF Online Free — Remove Text Permanently | No Adobe",
     template: "%s | RedactPDF.org",
   },
   description:
-    "Free online PDF redaction tool. Black out text, images & sensitive data from PDF instantly. Secure processing, no file storage. Works in your browser.",
+    "Free PDF redaction tool. Permanently delete text from PDF online — not cosmetic black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS apply, files not stored.",
   keywords: [
     "redact pdf",
-    "pdf redaction tool",
-    "black out pdf text",
-    "hide pdf data",
-    "pdf editor online",
-    "free pdf redactor",
+    "redact pdf online",
     "redact pdf online free",
+    "redact pdf free",
+    "redact pdf without adobe",
+    "remove text from pdf",
+    "delete text from pdf",
+    "black out text in pdf",
+    "pdf redaction tool free",
+    "adobe acrobat redact alternative",
+    "auto redact pdf",
+    "permanent pdf redaction",
   ],
   openGraph: {
     type: "website",
     locale: "en_US",
     url: CANONICAL_SITE_URL,
     siteName: SITE_NAME,
-    title: "Redact PDF Online Free - RedactPDF.org",
-    description: "Black out sensitive text from PDF in 2 clicks. Free & secure.",
+    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
+    description:
+      "Permanently delete text from PDF online. Free, no signup, no Adobe. Auto-detect PII & secure redaction.",
     images: [
       {
         url: "/opengraph-image",
@@ -55,8 +61,9 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Redact PDF Online Free - RedactPDF.org",
-    description: "Black out sensitive text from PDF in 2 clicks. Free & secure.",
+    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
+    description:
+      "Permanently delete text from PDF online. Free, no signup, no Adobe. Auto-detect PII & secure redaction.",
     images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
@@ -78,6 +85,6 @@ export const softwareApplicationJsonLd = {
     priceCurrency: "USD",
   },
   description:
-    "Free online tool to redact and black out text from PDF files securely in your browser.",
+    "Free online tool to permanently remove text from PDF files. No Adobe, no signup. Auto-detect PII and secure redaction in your browser.",
   url: PRODUCTION_SITE_URL,
 };

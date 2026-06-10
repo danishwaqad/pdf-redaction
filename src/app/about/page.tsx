@@ -40,7 +40,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "RedactPDF",
   url: PRODUCTION_SITE_URL,
-  logo: `${PRODUCTION_SITE_URL}/favicon.png`,
+  logo: `${PRODUCTION_SITE_URL}/favicon.ico`,
   founder: {
     "@type": "Person",
     name: "Danish Waqad",
