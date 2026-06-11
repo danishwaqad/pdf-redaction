@@ -18,14 +18,6 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   ...defaultMetadata,
-  icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/favicon.svg", type: "image/svg+xml" },
-    ],
-    apple: "/favicon.ico",
-    shortcut: "/favicon.ico",
-  },
   manifest: "/site.webmanifest",
 };
 
@@ -37,6 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* SVG first — modern browsers; avoids stale .ico cache showing wrong icon */}
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
         {/* Native <script> required — next/script afterInteractive only emits preload; AdSense crawler needs this tag */}
         <script
           id="adsense-script"
