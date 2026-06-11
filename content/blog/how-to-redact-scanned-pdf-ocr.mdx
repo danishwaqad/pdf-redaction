@@ -2,7 +2,7 @@
 title: "How to Redact a Scanned PDF (OCR + Redaction Guide)"
 description: "Redact scanned PDF pages with OCR first — make image-only documents searchable, mark sensitive text, and apply permanent removal."
 date: "2026-06-09"
-readTime: "10 min"
+readTime: "11 min"
 faqs:
   - question: "Can you redact a scanned PDF?"
     answer: "Yes. Run OCR to add a text layer, mark sensitive content, then apply permanent redaction."
@@ -12,95 +12,62 @@ faqs:
     answer: "OCR enables marking. Permanent removal happens when you apply redaction and verify the export."
 ---
 
-Scanned PDFs — paper scans, fax exports, phone photos saved as PDF — look like normal documents but often have **no selectable text**. You cannot search, auto-detect PII, or redact strings that the file does not know exist. This guide explains OCR-first redaction in [RedactPDF](/tool), hybrid PDF pitfalls, and verification for image-heavy pages.
+## Quick answer
 
-## Scanned PDF vs digital PDF
+A **scanned PDF** is often a picture — no selectable text, no PII auto-detect, no search until you **run OCR**. In [RedactPDF](/tool): upload → **Run OCR** on image pages → mark with detect + search + boxes → apply → verify. OCR does not replace permanent redaction; it unlocks marking. Full workflow: [redact PDF online free](/blog/how-to-redact-pdf-online-free).
 
-| Type | Text selectable? | Redaction approach |
-|------|------------------|------------------|
-| Born-digital PDF | Usually yes | Search, PII detect, boxes |
-| Scan / photo PDF | No until OCR | OCR → mark → apply |
-| Hybrid (Canva, exports) | Mixed | Per-page strategy |
+## Scanned vs digital PDFs
 
-If drawing boxes is disabled with a message about OCR, your page is image-dominant.
+Born-digital PDFs usually have text you can highlight. Fax exports, copier scans, and phone photos saved as PDF often do not. If the editor shows an OCR prompt or you cannot select words, treat the page as image-first.
 
-## Step 1 — Run OCR in RedactPDF
+**Hybrid PDFs** (Canva exports, some bank downloads) mix text and image layers — mark per page; use secure page mode on sensitive hybrid sheets when the whole background is sensitive.
 
-| Step | Action |
-|------|--------|
-| 1 | Open [RedactPDF](/tool) and upload the scan |
-| 2 | Go to a page without text — banner prompts **Run OCR** |
-| 3 | Wait for progress (recognition engine loads from CDN; internet required) |
-| 4 | Confirm search and text highlights work when marking |
+## Step 1 — Run OCR
 
-OCR adds a text layer aligned to visible words. Quality depends on scan resolution, skew, and handwriting (handwriting OCR is limited).
+1. Open [RedactPDF](/tool) and upload the scan
+2. On pages without text, tap **Run OCR**
+3. Wait for recognition (engine loads from CDN — internet required)
+4. Confirm search and highlights work when marking
+
+Quality depends on resolution, skew, and handwriting. Garbled OCR needs **larger manual boxes** over whole lines. Handwriting recognition is limited — box the region visually.
 
 ## Step 2 — Mark sensitive content
 
 After OCR:
 
-- **PII auto-detect** for emails, phones, cards, SSN patterns
-- **Search** for names and case-specific strings OCR recognized correctly
-- **Manual boxes** over signatures, stamps, faces, or OCR misses
+- **PII auto-detect** for emails, phones, cards, SSN patterns — [auto redact guide](/blog/auto-redact-pdf-pii-detection)
+- **Search** for names and case IDs OCR recognized
+- **Manual boxes** on signatures, stamps, faces, barcodes, OCR misses
 
-Zoom in on low-confidence regions. Garbled OCR may need larger boxes covering entire lines.
+Zoom low-confidence regions. Headers repeat on every page — do not stop at page one.
 
-## Step 3 — Apply permanent redaction
+## Step 3 — Apply and verify
 
-Apply redactions as with digital PDFs. On hybrid pages, consider **Secure page** mode if the entire page background is sensitive (flattens to image for maximum assurance on marked hybrid pages).
+Apply as with digital PDFs. On the **downloaded** file:
 
-## Step 4 — Verify scanned redactions
+- Search known strings
+- Try select under redacted areas
+- Paste to Notepad
 
-| Failure mode | What went wrong | Prevention |
-|--------------|-----------------|------------|
-| OCR miss | Sensitive word never detected | Visual read at 100% zoom; manual boxes |
-| Cosmetic redaction | Pixels still show under small box | Cover full line or image region |
-| Hybrid layer leak | OCR text survives under image box | Rasterize page or use secure page mode |
+Failure means re-mark and re-apply. Why overlays fail: [why blacking out is not safe](/blog/why-blacking-out-pdf-is-not-safe).
 
-| Verification test | Pass criteria |
-|-------------------|---------------|
-| Visual scan | No readable PII at 100% zoom |
-| Search (Ctrl+F) | Known strings return zero hits |
-| Copy-paste | Text layer omits redacted content |
+## Common scan redaction mistakes
 
-For image-only redaction without reliable OCR, mark the **image region** with boxes covering the full sensitive area.
+Black box in a photo editor without touching PDF structure. OCR skipped because "it looks like text." Assuming one page's OCR covers the whole file. Sharing before verification.
 
-## Poor scan quality tips
+## Use cases
 
-| Issue | Fix |
-|-------|-----|
-| Blurry text | Re-scan at 300 DPI |
-| Skewed pages | Deskew before upload |
-| Mixed digital + scan | Split into separate files |
-| Handwriting | Manual image boxes (OCR limited) |
+Medical chart scans ([HIPAA guide](/blog/how-to-redact-medical-records-pdf-hipaa)), signed contracts, immigration documents, legacy HR files. Court exhibits: [redact PDF for court](/blog/how-to-redact-pdf-for-court).
 
-## Scanned PDF redaction use cases
+## Related guides
 
-| Industry | Example documents |
-|----------|-------------------|
-| Healthcare | Chart photos in PDF packets |
-| Legal | Signed contract backs, historical exhibits |
-| Government | FOIA legacy paper archives |
-| Insurance | Fax exports and claim scans |
+- [Redact PDF online free](/blog/how-to-redact-pdf-online-free)
+- [Auto redact PII](/blog/auto-redact-pdf-pii-detection)
+- [Black out text in PDF](/blog/how-to-black-out-text-in-pdf)
+- [Redact SSN from PDF](/blog/how-to-redact-ssn-from-pdf)
+- [Redact bank statement PDF](/blog/how-to-redact-bank-statement-pdf)
+- [Remove text permanently](/blog/how-to-remove-text-from-pdf-permanently)
 
-Pair with [court redaction guide](/blog/how-to-redact-pdf-for-court) when filings are involved.
+## Redact your scan now
 
-## OCR privacy note
-
-OCR runs in your browser session; recognition models load from a CDN. For air-gapped environments, desktop OCR + offline redaction may be required by policy. See [security page](/security) and privacy policy for data flow on Apply.
-
-## Scanned PDF without Adobe
-
-| Feature | Adobe Acrobat Pro | RedactPDF (browser) |
-|---------|-------------------|---------------------|
-| OCR | Yes | Yes (in tool) |
-| Permanent redact | Yes | Yes |
-| Cost | Paid subscription | Free |
-| Install | Desktop | None |
-| Air-gapped use | Possible offline | Apply needs HTTPS |
-
-[Redact PDF without Adobe](/blog/how-to-redact-pdf-without-adobe) using RedactPDF covers many scan workflows in the browser.
-
-## Redact your scanned PDF now
-
-[Open RedactPDF](/tool) → upload scan → **Run OCR** → mark → apply → verify. Scanned PDF redaction works when you treat OCR as step one, not an optional shortcut.
+[Open RedactPDF](/tool), OCR first, mark, apply, verify. Scanned PDF redaction works when the file **knows** what text exists — then you **remove** it for real.

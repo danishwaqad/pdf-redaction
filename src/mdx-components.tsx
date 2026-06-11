@@ -1,5 +1,6 @@
 import type { MDXComponents } from "mdx/types";
 import Link from "next/link";
+import { DemoVideoEmbed } from "@/components/landing/demo-video-modal";
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -55,6 +56,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     td: ({ children }) => (
       <td className="px-4 py-3 align-top leading-6 text-slate-600">{children}</td>
     ),
+    DemoVideoEmbed,
     ...components,
   };
 }
