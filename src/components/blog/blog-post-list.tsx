@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Calendar, Clock } from "lucide-react";
 import type { BlogPostMeta } from "@/lib/blog";
 import { BlogPagination } from "@/components/blog/blog-pagination";
+import { formatBlogDate, formatReadTime } from "@/lib/utils";
 
 export function BlogPostList({
   posts,
@@ -25,12 +26,12 @@ export function BlogPostList({
                 </p>
                 <div className="mt-4 flex flex-wrap gap-4 text-xs text-muted-foreground">
                   <span className="inline-flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {post.date}
+                    <Calendar className="h-3.5 w-3.5" aria-hidden />
+                    <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
                   </span>
                   <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    {post.readTime}
+                    <Clock className="h-3.5 w-3.5" aria-hidden />
+                    {formatReadTime(post.readTime)}
                   </span>
                 </div>
               </Link>

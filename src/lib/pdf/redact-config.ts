@@ -8,16 +8,28 @@ export function isLocalHostname(): boolean {
   return host === "localhost" || host === "127.0.0.1";
 }
 
+/** Normalize API base — adds https:// if missing. */
+function normalizeApiBaseUrl(raw: string): string {
+  const trimmed = raw.trim().replace(/\/$/, "");
+  if (!trimmed) return "";
+  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+}
+
 /**
- * Local dev always uses port 8000 (ignores REDACT_API_URL in .env.local).
- * Production uses NEXT_PUBLIC_REDACT_API_URL from Vercel build.
+ * Uses NEXT_PUBLIC_REDACT_API_URL when set (.env.local REDACT_API_URL or Vercel).
+ * Local fallback: port 8000 when unset (npm run dev:api).
  */
 export function getRedactApiBaseUrl(): string {
+  const configured = process.env.NEXT_PUBLIC_REDACT_API_URL?.trim();
+  if (configured) {
+    return normalizeApiBaseUrl(configured);
+  }
   if (isLocalHostname()) {
     return LOCAL_REDACT_API_URL;
   }
-  const configured = process.env.NEXT_PUBLIC_REDACT_API_URL?.trim();
-  if (configured) return configured.replace(/\/$/, "");
   return "";
 }
 

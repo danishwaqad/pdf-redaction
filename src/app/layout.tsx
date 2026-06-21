@@ -19,6 +19,14 @@ const inter = Inter({
 export const metadata: Metadata = {
   ...defaultMetadata,
   manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48", type: "image/x-icon" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/favicon.ico",
+    shortcut: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
@@ -29,9 +37,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* SVG first — modern browsers; avoids stale .ico cache showing wrong icon */}
+        {/* favicon.ico first — Google Search requires a stable root icon URL */}
+        <link rel="icon" href="/favicon.ico" sizes="48x48" type="image/x-icon" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
         {/* Native <script> required — next/script afterInteractive only emits preload; AdSense crawler needs this tag */}
         <script
           id="adsense-script"

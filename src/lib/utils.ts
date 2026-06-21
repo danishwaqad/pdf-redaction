@@ -33,3 +33,21 @@ export function certificateFilename(original: string): string {
   const base = original.replace(/\.pdf$/i, "") || "document";
   return `${base}_redaction_certificate.txt`;
 }
+
+/** Frontmatter date (YYYY-MM-DD) → e.g. "Jun 14, 2026" */
+export function formatBlogDate(iso: string): string {
+  const d = new Date(`${iso.trim()}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** readTime frontmatter → "14 min read" */
+export function formatReadTime(readTime: string): string {
+  const t = readTime.trim();
+  if (!t) return "";
+  return /\bread\b/i.test(t) ? t : `${t} read`;
+}

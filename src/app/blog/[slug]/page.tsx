@@ -8,6 +8,7 @@ import { useMDXComponents } from "@/mdx-components";
 import { BlogCta } from "@/components/blog/blog-cta";
 import { FaqSchema } from "@/components/blog/faq-schema";
 import { ContentWithAds } from "@/components/layout/content-with-ads";
+import { formatBlogDate, formatReadTime } from "@/lib/utils";
 
 export function generateStaticParams() {
   return getAllPostSlugs().map((slug) => ({ slug }));
@@ -87,7 +88,9 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
               </a>
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              {post.date} · {post.readTime}
+              <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
+              {" · "}
+              {formatReadTime(post.readTime)}
             </p>
           </header>
         </div>
