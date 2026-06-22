@@ -66,6 +66,19 @@ export const defaultMetadata: Metadata = {
     siteName: SITE_NAME,
     title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
     description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Redact PDF Online Free - RedactPDF.org",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
+    description: SITE_DESCRIPTION,
     images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
