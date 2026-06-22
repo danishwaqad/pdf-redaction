@@ -30,7 +30,7 @@ function siteVerification(): Metadata["verification"] | undefined {
   }
   return Object.keys(verification).length > 0 ? verification : undefined;
 }
-
+//bing verification meta is required for Bing Webmaster Tools to verify site ownership, so we provide a default value to ensure it works even if the environment variable is not set.
 const verificationMeta = siteVerification();
 
 export const defaultMetadata: Metadata = {
