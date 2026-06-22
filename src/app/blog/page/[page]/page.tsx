@@ -22,6 +22,7 @@ export function generateMetadata({
   return {
     title: `PDF Redaction Blog — Page ${page}`,
     description: `PDF redaction guides — page ${page}. Court, GDPR, Adobe alternatives, and secure workflows.`,
+    alternates: { canonical: `/blog/page/${page}` },
   };
 }
 
