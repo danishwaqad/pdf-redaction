@@ -13,8 +13,8 @@ import { PRODUCTION_SITE_URL } from "@/lib/seo";
 export const dynamic = "force-static";
 
 export const metadata: Metadata = pageMetadata(
-  "About RedactPDF — Privacy-First PDF Redaction",
-  "Meet the founder behind RedactPDF, learn our security principles, and see why we built a privacy-first PDF redaction tool for legal, compliance, and client work.",
+  "About RedactPDF — Privacy-First Redaction",
+  "Meet the founder, our security principles, and why we built a privacy-first PDF redaction tool for legal and compliance teams.",
   "/about"
 );
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { clampSeoDescription, clampSeoTitle } from "@/lib/seo-limits";
 
 /** Browser/metadata base — may be localhost in local .env */
 export const SITE_URL =
@@ -17,9 +18,14 @@ export const CANONICAL_SITE_URL =
 
 export const SITE_NAME = "RedactPDF";
 
+export const SITE_TITLE = clampSeoTitle(
+  "Redact PDF Online Free — Remove Text Permanently"
+);
+
 /** Bing/Google SERP snippet — keep 25–160 characters */
-export const SITE_DESCRIPTION =
-  "Free PDF redaction online. Permanently remove text — not black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS, files not stored.";
+export const SITE_DESCRIPTION = clampSeoDescription(
+  "Free PDF redaction online. Permanently remove text — not black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS, files not stored."
+);
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingVerification =
@@ -40,9 +46,8 @@ const verificationMeta = siteVerification();
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(CANONICAL_SITE_URL),
   title: {
-    default:
-      "Redact PDF Online Free — Remove Text Permanently | No Adobe",
-    template: "%s | RedactPDF.org",
+    default: SITE_TITLE,
+    template: "%s",
   },
   description: SITE_DESCRIPTION,
   keywords: [
@@ -64,7 +69,7 @@ export const defaultMetadata: Metadata = {
     locale: "en_US",
     url: CANONICAL_SITE_URL,
     siteName: SITE_NAME,
-    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: [
       {
@@ -77,7 +82,7 @@ export const defaultMetadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
+    title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     images: ["/opengraph-image"],
   },

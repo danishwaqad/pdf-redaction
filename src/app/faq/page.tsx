@@ -5,7 +5,7 @@ import { REDACTION_DATA_FLOW } from "@/lib/site-messaging";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
-  "FAQ — Redact PDF Online Free, Secure & Permanent",
+  "FAQ — Redact PDF Online Free & Secure",
   "Answers about PDF redaction, security, GDPR, court filings, and how RedactPDF works.",
   "/faq"
 );

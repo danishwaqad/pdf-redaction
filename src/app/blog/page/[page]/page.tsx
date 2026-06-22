@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPostsForPage, getTotalBlogPages } from "@/lib/blog";
+import { pageMetadata } from "@/lib/page-metadata";
 import { PageHero } from "@/components/layout/page-hero";
 import { ContentWithAds } from "@/components/layout/content-with-ads";
 import { BlogPostList } from "@/components/blog/blog-post-list";
@@ -19,11 +20,11 @@ export function generateMetadata({
 }): Metadata {
   const page = Number(params.page);
   if (!Number.isFinite(page) || page < 2) return {};
-  return {
-    title: `PDF Redaction Blog — Page ${page}`,
-    description: `PDF redaction guides — page ${page}. Court, GDPR, Adobe alternatives, and secure workflows.`,
-    alternates: { canonical: `/blog/page/${page}` },
-  };
+  return pageMetadata(
+    `PDF Redaction Blog — Page ${page}`,
+    `PDF redaction guides — page ${page}. Court, GDPR, Adobe alternatives, and secure workflows.`,
+    `/blog/page/${page}`
+  );
 }
 
 export default function BlogPaginatedPage({ params }: { params: { page: string } }) {

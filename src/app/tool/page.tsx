@@ -4,6 +4,7 @@ import { ArrowRight, BadgeHelp, CheckCircle2, FileText, Scale, ShieldCheck, User
 import { ToolClient } from "@/components/app/tool-client";
 import { Button } from "@/components/ui/button";
 import { PRODUCTION_SITE_URL } from "@/lib/seo";
+import { clampSeoDescription, clampSeoTitle } from "@/lib/seo-limits";
 
 export const dynamic = "force-static";
 
@@ -266,9 +267,10 @@ const faqJsonLd = {
   })),
 };
 
-const TOOL_TITLE = "Redact PDF Online Free — Remove Text Permanently";
-const TOOL_DESCRIPTION =
-  "Free PDF redactor online. Permanently remove text, auto-detect PII, OCR for scans. No signup, secure HTTPS.";
+const TOOL_TITLE = clampSeoTitle("Redact PDF Online Free — Remove Text Permanently");
+const TOOL_DESCRIPTION = clampSeoDescription(
+  "Free PDF redactor online. Permanently remove text, auto-detect PII, OCR for scans. No signup, secure HTTPS."
+);
 
 export const metadata: Metadata = {
   title: {

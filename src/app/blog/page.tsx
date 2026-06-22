@@ -6,8 +6,8 @@ import { BlogPostList } from "@/components/blog/blog-post-list";
 import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
-  "PDF Redaction Blog — Court, GDPR, Adobe & iPhone Guides",
-  "Expert guides on redact pdf online free, permanent redaction, Adobe alternatives, GDPR checklists, and safe mobile workflows.",
+  "PDF Redaction Blog — Court, GDPR & Adobe",
+  "Guides on free PDF redaction, permanent removal, Adobe alternatives, GDPR checklists, and secure workflows.",
   "/blog"
 );
 

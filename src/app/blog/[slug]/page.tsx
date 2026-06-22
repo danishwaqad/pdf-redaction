@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import remarkGfm from "remark-gfm";
 import { getAllPostSlugs, getPostBySlug, resolveBlogSlug } from "@/lib/blog";
+import { pageMetadata } from "@/lib/page-metadata";
 import { useMDXComponents } from "@/mdx-components";
 import { BlogCta } from "@/components/blog/blog-cta";
 import { FaqSchema } from "@/components/blog/faq-schema";
@@ -21,17 +22,12 @@ export function generateMetadata({
 }): Metadata {
   const post = getPostBySlug(resolveBlogSlug(params.slug));
   if (!post) return {};
-  return {
-    title: post.title,
-    description: post.description,
-    alternates: { canonical: `/blog/${post.slug}` },
+  return pageMetadata(post.title, post.description, `/blog/${post.slug}`, {
     openGraph: {
-      title: post.title,
-      description: post.description,
       type: "article",
       publishedTime: post.date,
     },
-  };
+  });
 }
 
 export default function BlogPostPage({ params }: { params: { slug: string } }) {
