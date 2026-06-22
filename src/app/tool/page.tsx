@@ -266,28 +266,28 @@ const faqJsonLd = {
   })),
 };
 
+const TOOL_TITLE = "Redact PDF Online Free — Remove Text Permanently";
+const TOOL_DESCRIPTION =
+  "Free PDF redactor online. Permanently remove text, auto-detect PII, OCR for scans. No signup, secure HTTPS.";
+
 export const metadata: Metadata = {
   title: {
-    absolute:
-      "Redact PDF Online Free — Permanently Remove Text | No Adobe | RedactPDF",
+    absolute: TOOL_TITLE,
   },
-  description:
-    "Free PDF redaction tool. Permanently delete text from PDF online — not cosmetic black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS apply, files not stored.",
+  description: TOOL_DESCRIPTION,
   keywords: metadataKeywords,
   robots: { index: true, follow: true },
   alternates: { canonical: TOOL_URL },
   openGraph: {
-    title: "Redact PDF Online Free — Permanently Remove Text | No Adobe",
-    description:
-      "Free PDF redaction. Permanently delete text — not black boxes. Auto-detect PII, no signup, secure apply.",
+    title: TOOL_TITLE,
+    description: TOOL_DESCRIPTION,
     type: "website",
     url: TOOL_URL,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Redact PDF Online Free — Permanently Remove Text | No Adobe",
-    description:
-      "Free PDF redaction. Permanently delete text — not black boxes. Auto-detect PII, no signup, secure apply.",
+    title: TOOL_TITLE,
+    description: TOOL_DESCRIPTION,
   },
 };
 
