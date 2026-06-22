@@ -17,6 +17,10 @@ export const CANONICAL_SITE_URL =
 
 export const SITE_NAME = "RedactPDF";
 
+/** Bing/Google SERP snippet — keep 25–160 characters */
+export const SITE_DESCRIPTION =
+  "Free PDF redaction online. Permanently remove text — not black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS, files not stored.";
+
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
 const bingVerification =
   process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ??
@@ -40,8 +44,7 @@ export const defaultMetadata: Metadata = {
       "Redact PDF Online Free — Remove Text Permanently | No Adobe",
     template: "%s | RedactPDF.org",
   },
-  description:
-    "Free PDF redaction tool. Permanently delete text from PDF online — not cosmetic black boxes. Auto-detect PII, OCR for scans. No signup. Secure HTTPS apply, files not stored.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "redact pdf",
     "redact pdf online",
@@ -62,22 +65,7 @@ export const defaultMetadata: Metadata = {
     url: CANONICAL_SITE_URL,
     siteName: SITE_NAME,
     title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
-    description:
-      "Permanently delete text from PDF online. Free, no signup, no Adobe. Auto-detect PII & secure redaction.",
-    images: [
-      {
-        url: "/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: "Redact PDF Online Free - RedactPDF.org",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Redact PDF Online Free — Remove Text Permanently | No Adobe",
-    description:
-      "Permanently delete text from PDF online. Free, no signup, no Adobe. Auto-detect PII & secure redaction.",
+    description: SITE_DESCRIPTION,
     images: ["/opengraph-image"],
   },
   robots: { index: true, follow: true },
