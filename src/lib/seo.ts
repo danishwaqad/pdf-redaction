@@ -18,6 +18,20 @@ export const CANONICAL_SITE_URL =
 export const SITE_NAME = "RedactPDF";
 
 const googleVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+const bingVerification =
+  process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ??
+  "806FC035850D34AB87D08A7936488264";
+
+function siteVerification(): Metadata["verification"] | undefined {
+  const verification: NonNullable<Metadata["verification"]> = {};
+  if (googleVerification) verification.google = googleVerification;
+  if (bingVerification) {
+    verification.other = { "msvalidate.01": bingVerification };
+  }
+  return Object.keys(verification).length > 0 ? verification : undefined;
+}
+
+const verificationMeta = siteVerification();
 
 export const defaultMetadata: Metadata = {
   metadataBase: new URL(CANONICAL_SITE_URL),
@@ -68,9 +82,7 @@ export const defaultMetadata: Metadata = {
   },
   robots: { index: true, follow: true },
   alternates: { canonical: CANONICAL_SITE_URL },
-  ...(googleVerification
-    ? { verification: { google: googleVerification } }
-    : {}),
+  ...(verificationMeta ? { verification: verificationMeta } : {}),
 };
 
 export const softwareApplicationJsonLd = {

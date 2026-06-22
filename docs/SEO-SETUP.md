@@ -8,6 +8,7 @@ This project is **Next.js** (no `index.html`). Meta tags live in `src/lib/seo.ts
 |----------|---------|---------|
 | `NEXT_PUBLIC_SITE_URL` | `https://redactpdf.org` | Canonical, sitemap, OG |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | code from Search Console | Site ownership |
+| `NEXT_PUBLIC_BING_SITE_VERIFICATION` | code from Bing Webmaster (HTML tag) | Bing site ownership |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `G-XXXXXXXXXX` | Google Analytics 4 |
 | `NEXT_PUBLIC_ADSENSE_CLIENT_ID` | `ca-pub-...` | AdSense script |
 
@@ -21,6 +22,16 @@ Redeploy after changing env vars.
 4. Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in Vercel
 5. Redeploy → Verify in Search Console
 6. Submit sitemap: `https://redactpdf.org/sitemap.xml`
+
+## 2b. Bing Webmaster Tools
+
+1. [bing.com/webmasters](https://www.bing.com/webmasters) → add `https://redactpdf.org`
+2. **HTML Meta Tag** method → copy the `content` value from `msvalidate.01`
+3. Set `NEXT_PUBLIC_BING_SITE_VERIFICATION` in Vercel (or use the built-in production default)
+4. Redeploy → **Verify** in Bing
+5. Submit sitemap: `https://redactpdf.org/sitemap.xml`
+
+Tip: On the Bing welcome screen you can **Import from Google Search Console** instead of manual verify.
 
 ## 3. Google Analytics 4
 
