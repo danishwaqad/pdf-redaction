@@ -267,7 +267,7 @@ const faqJsonLd = {
   })),
 };
 
-const TOOL_TITLE = clampSeoTitle("Redact PDF Online Free — Remove Text Permanently");
+const TOOL_TITLE = clampSeoTitle("Free PDF Redaction Tool — Redact Text Online");
 const TOOL_DESCRIPTION = clampSeoDescription(
   "Free PDF redactor online. Permanently remove text, auto-detect PII, OCR for scans. No signup, secure HTTPS."
 );

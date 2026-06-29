@@ -7,7 +7,7 @@ import { pageMetadata } from "@/lib/page-metadata";
 
 export const metadata: Metadata = pageMetadata(
   "Contact Us - RedactPDF",
-  "Contact RedactPDF for questions about PDF redaction, privacy, and bugs.",
+  "Contact RedactPDF for help with free PDF redaction, privacy questions, bug reports, and tool support. Email us — PDF files are not accepted through this form.",
   "/contact"
 );
 
