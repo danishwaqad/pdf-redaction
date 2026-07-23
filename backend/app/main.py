@@ -27,7 +27,7 @@ from fastapi.responses import Response
 from starlette.datastructures import UploadFile
 from starlette.formparsers import MultiPartException
 
-from app.redact_engine import apply_redactions_pymupdf
+from app.redact_engine import PdfFormatError, apply_redactions_pymupdf
 from app.security import (
     MAX_MULTIPART_PART_BYTES,
     auth_status,
@@ -120,6 +120,8 @@ async def redact(request: Request):
         )
     except ValueError as e:
         raise HTTPException(400, str(e)) from e
+    except PdfFormatError as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
     except Exception:
         logger.exception("Redaction failed")
         raise HTTPException(500, "Internal redaction error") from None

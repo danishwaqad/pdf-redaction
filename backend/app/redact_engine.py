@@ -7,6 +7,19 @@ from typing import Any
 
 import fitz
 
+# MuPDF still logs xref warnings to stderr; we surface a clear API error when repair fails.
+fitz.TOOLS.mupdf_display_errors(False)
+
+PDF_DAMAGED_MESSAGE = (
+    "This PDF appears damaged or uses a non-standard format (common with some "
+    "government and mobile exports). Open it in a PDF viewer, use Save As or "
+    "Print to PDF to create a clean copy, then upload again."
+)
+
+
+class PdfFormatError(ValueError):
+    """PDF cannot be opened or saved reliably after repair."""
+
 
 class RedactionMark:
     __slots__ = ("page_index", "x", "y", "width", "height")
@@ -46,19 +59,25 @@ def _pdf_rect_to_fitz(page: fitz.Page, mark: RedactionMark) -> fitz.Rect:
     return fitz.Rect(x0, fitz_y0, x1, fitz_y1)
 
 
-def apply_redactions_pymupdf(
-    pdf_bytes: bytes,
-    redactions_json: str,
-    *,
-    secure_image_pages: bool = False,
-    hybrid_page_indices: list[int] | None = None,
-) -> bytes:
-    marks = _parse_marks(json.loads(redactions_json))
-    if not marks:
-        raise ValueError("No redaction marks provided")
+def _open_pdf_document(pdf_bytes: bytes, *, repair: bool) -> fitz.Document:
+    try:
+        doc = fitz.open(stream=pdf_bytes, filetype="pdf", repair=repair)
+    except Exception as e:
+        raise PdfFormatError(PDF_DAMAGED_MESSAGE) from e
+    if doc.page_count < 1:
+        doc.close()
+        raise PdfFormatError("PDF has no pages.")
+    return doc
 
+
+def _apply_redactions_to_doc(
+    doc: fitz.Document,
+    marks: list[RedactionMark],
+    *,
+    secure_image_pages: bool,
+    hybrid_page_indices: list[int] | None,
+) -> bytes:
     hybrid_set = set(hybrid_page_indices or [])
-    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 
     by_page: dict[int, list[RedactionMark]] = {}
     for m in marks:
@@ -95,6 +114,44 @@ def apply_redactions_pymupdf(
         }
     )
 
-    out = doc.tobytes(garbage=4, deflate=True)
-    doc.close()
-    return out
+    try:
+        return doc.tobytes(garbage=4, deflate=True)
+    except Exception as e:
+        raise PdfFormatError(PDF_DAMAGED_MESSAGE) from e
+
+
+def apply_redactions_pymupdf(
+    pdf_bytes: bytes,
+    redactions_json: str,
+    *,
+    secure_image_pages: bool = False,
+    hybrid_page_indices: list[int] | None = None,
+) -> bytes:
+    marks = _parse_marks(json.loads(redactions_json))
+    if not marks:
+        raise ValueError("No redaction marks provided")
+
+    last_error: Exception | None = None
+    for repair in (False, True):
+        doc: fitz.Document | None = None
+        try:
+            doc = _open_pdf_document(pdf_bytes, repair=repair)
+            return _apply_redactions_to_doc(
+                doc,
+                marks,
+                secure_image_pages=secure_image_pages,
+                hybrid_page_indices=hybrid_page_indices,
+            )
+        except PdfFormatError as e:
+            last_error = e
+            if repair:
+                raise
+        except Exception as e:
+            last_error = e
+            if repair:
+                raise PdfFormatError(PDF_DAMAGED_MESSAGE) from e
+        finally:
+            if doc is not None:
+                doc.close()
+
+    raise PdfFormatError(PDF_DAMAGED_MESSAGE) from last_error

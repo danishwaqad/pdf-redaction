@@ -164,6 +164,9 @@ export function redactApiUnavailableMessage(err: unknown): string {
   if (err instanceof RedactApiError && err.status === 401) {
     return "API key rejected. Use the same REDACT_API_KEY on Railway and Vercel, then redeploy.";
   }
+  if (err instanceof RedactApiError && err.status === 422) {
+    return err.message;
+  }
   if (err instanceof RedactApiError) {
     if (err.status === 413) {
       return `${err.message}\n\nRestart the API: npm run dev:api`;
