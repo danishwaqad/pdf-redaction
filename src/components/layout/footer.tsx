@@ -48,7 +48,7 @@ export function Footer() {
                     aria-label={link.label}
                     className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-slate-500 hover:bg-slate-700 hover:text-white"
                   >
-                    <Icon className="h-5 w-5" aria-hidden />
+                    <Icon className="h-5 w-5" />
                   </a>
                 );
               })}
