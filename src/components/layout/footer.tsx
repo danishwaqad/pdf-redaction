@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FOOTER_BLURB } from "@/lib/site-messaging";
+import { SOCIAL_LINKS } from "@/lib/site-social";
 
 const legalLinks = [
   { href: "/about", label: "About" },
@@ -35,6 +36,23 @@ export function Footer() {
           <div>
             <p className="text-lg font-bold text-white">RedactPDF.org</p>
             <p className="mt-2 text-sm leading-relaxed">{FOOTER_BLURB}</p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {SOCIAL_LINKS.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={link.label}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-slate-500 hover:bg-slate-700 hover:text-white"
+                  >
+                    <Icon className="h-5 w-5" aria-hidden />
+                  </a>
+                );
+              })}
+            </div>
             <p className="mt-4 text-xs text-slate-500">Site launched {LAUNCH_DATE}</p>
           </div>
           <div>
