@@ -49,9 +49,10 @@ backend/.venv/
 backend/**/__pycache__/
 *.pyc
 
-# API Keys & Secrets - EXTRA SAFETY
+# API Keys & Secrets - EXTRA SAFETY (avoid broad *key* — it ignores files like keyword-hub-section.tsx)
 *secret*
-*key*
+*.key
+*.pem
 config.json
 config.js
 secrets.json
