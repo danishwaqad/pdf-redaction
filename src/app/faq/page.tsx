@@ -52,8 +52,16 @@ const faqs = [
     a: "Marking happens in your browser. On Apply, the file is sent over HTTPS for processing and returned — we do not store PDFs in a cloud inbox. For highly sensitive material, follow your organization's policy and verify the output before distribution.",
   },
   {
-    q: "How to auto-detect emails and SSN in a PDF?",
-    a: "Use the PII panel in RedactPDF to detect emails, phones, credit cards, dates, and SSN patterns. Review every match, add manual boxes for names or other data, then apply permanent redaction.",
+    q: "Is RedactPDF better than iLovePDF for redaction?",
+    a: "iLovePDF excels at merge, split, compress, and convert. RedactPDF is a free dedicated redactor: permanent text removal, PII auto-detect, no standing cloud inbox for your personal files. Read our iLovePDF alternative comparison on the blog.",
+  },
+  {
+    q: "Can I edit a PDF online free without storing my file?",
+    a: "If you need to remove or redact sensitive text (not add images or rearrange pages), yes. Mark in your browser; Apply uses HTTPS only and we do not keep a saved copy of your PDF.",
+  },
+  {
+    q: "What does redacted mean for a PDF?",
+    a: "A properly redacted PDF has sensitive content permanently removed — not merely covered. Search and copy-paste tests should not recover deleted strings. See our guide on what is a redacted PDF.",
   },
 ];
 

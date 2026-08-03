@@ -83,9 +83,39 @@ const metadataKeywords = [
   "court compliant pdf redaction",
   "gdpr pdf redaction",
   "secure pdf redaction",
+  "ilovepdf alternative",
+  "ilovepdf redact pdf",
+  "edit pdf online free",
+  "edit pdf remove text",
+  "pdf editor free redaction",
+  "redacted pdf",
+  "redaction tool",
+  "free redaction tool",
+  "pdf redactor free",
 ];
 
 const keywordSections = [
+  {
+    title: "iLovePDF Alternative — Free & No File Storage",
+    paragraphs: [
+      "Millions search **ilovepdf** every month for everyday PDF tasks. When the job is **confidential redaction** — not merge or compress — upload-first tools may leave **searchable text** under black shapes and keep files in a cloud workflow you did not audit.",
+      "RedactPDF is a **100% free iLovePDF alternative for redaction**: mark in your browser, apply permanent removal, **no standing storage** of personal records. Read the full [iLovePDF alternative guide](/blog/ilovepdf-alternative-free-pdf-redaction) and [RedactPDF vs iLovePDF](/blog/redactpdf-vs-ilovepdf) comparison.",
+    ],
+  },
+  {
+    title: "Edit PDF Online Free — Remove Text (Redaction)",
+    paragraphs: [
+      "Searches for **edit pdf**, **edit pdf online**, and **pdf editor free** often mean **remove sensitive text** before sharing — not design a new layout. That is **redaction**, and it requires deleting extractable content from the PDF structure.",
+      "RedactPDF is a free **online PDF editor for redaction** only: no signup, no paywall on download, verify with Ctrl+F after apply. See [edit PDF online to remove text](/blog/edit-pdf-online-remove-text-free) for the full workflow.",
+    ],
+  },
+  {
+    title: "Redacted PDF & Redaction Tool (Free)",
+    paragraphs: [
+      "**Redacted**, **redaction**, and **redact** describe permanent removal of confidential content — not cosmetic blackout. A **redaction tool** deletes text operators; a generic editor may only draw shapes on top.",
+      "Learn [what is a redacted PDF](/blog/what-is-a-redacted-pdf), then use this **free redaction tool** to produce verifiable output for court, GDPR, and HR workflows.",
+    ],
+  },
   {
     title: "Redact PDF Online Free — No Account Required",
     paragraphs: [
@@ -184,6 +214,26 @@ const userGroups = [
 
 const relatedGuides = [
   {
+    href: "/blog/ilovepdf-alternative-free-pdf-redaction",
+    title: "iLovePDF Alternative (Free, No Storage)",
+    description: "Better than iLovePDF for permanent redaction — no saved personal files.",
+  },
+  {
+    href: "/blog/edit-pdf-online-remove-text-free",
+    title: "Edit PDF Online — Remove Text Free",
+    description: "When edit PDF means redact sensitive content, not add pages.",
+  },
+  {
+    href: "/blog/what-is-a-redacted-pdf",
+    title: "What Is a Redacted PDF?",
+    description: "Redacted, redaction, redact — meaning and free tool.",
+  },
+  {
+    href: "/blog/redactpdf-vs-ilovepdf",
+    title: "RedactPDF vs iLovePDF",
+    description: "Side-by-side redaction and privacy comparison.",
+  },
+  {
     href: "/blog/how-to-remove-text-from-pdf-permanently",
     title: "Remove Text from PDF Permanently",
     description: "Delete extractable text — not just visual black boxes.",
@@ -269,7 +319,7 @@ const faqJsonLd = {
 
 const TOOL_TITLE = clampSeoTitle("Free PDF Redaction Tool — Redact Text Online");
 const TOOL_DESCRIPTION = clampSeoDescription(
-  "Free PDF redactor online. Permanently remove text, auto-detect PII, OCR for scans. No signup, secure HTTPS."
+  "Free PDF redactor — ilovepdf alternative for redaction. Edit PDF online: remove text permanently. No signup, no stored personal files. PII detect, OCR."
 );
 
 export const metadata: Metadata = {

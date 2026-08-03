@@ -14,8 +14,12 @@ const faqs = [
     a: "RedactPDF helps you remove visible content, but court rules vary by jurisdiction. Consult your legal team for compliance requirements before filing.",
   },
   {
-    q: "Is RedactPDF GDPR compliant?",
-    a: "We do not store PDFs after processing. Transient HTTPS redaction supports data minimization; you remain the data controller and must verify outputs before sharing.",
+    q: "Is RedactPDF better than iLovePDF for redaction?",
+    a: "iLovePDF is great for merge, split, and compress. For permanent redaction of personal data, RedactPDF is free, does not store your PDF in a cloud inbox, and removes extractable text — not just black shapes. See our iLovePDF alternative guide.",
+  },
+  {
+    q: "Can I edit a PDF online free to remove text?",
+    a: "Yes — when edit PDF means delete or redact sensitive content, not add new pages. RedactPDF is a free browser tool for permanent text removal with no signup.",
   },
 ];
 
